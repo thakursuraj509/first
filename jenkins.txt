@@ -1,0 +1,387 @@
+Jenkins:
+- continuous integration
+- continuous deployment
+- earlier -> hudson 1.0 -> CI
+- oracle acquired and rename -> jenkins 2.0 -> CICD
+- written in java
+- version java 1.8+
+- alternative tools for jenkins -> circle ci, travis ci, bamboo, gitlab, github actions, udeploy, tfs, teamcity
+-----------------------------
+Installation - Jenkins:
+Windows:
+- install java in system
+- jenkins.war file - download
+- go to this downloaded path and run java -jar jenkins.war
+- installation will be done
+- default - runs on port 8080
+- default - uses jetty web server
+- if you want to overwrite jetty with tomcat, take jenkins.war file and deploy in tomcat server 
+- start jenkins with custom port => java -jar jenkins.war --httpPort=1234
+-----------------------------
+Linux 2 AMI: jenkins password: 9a0b0b1447b24c6eae7f63981fb5eeed
+https://tecadmin.net/install-java-on-amazon-linux/
+sudo yum install java-1.8.0-openjdk-devel
+sudo alternatives --config java
+JAVA_HOME is at /usr/java/jdk1.8.0_141/
+
+https://www.jenkins.io/doc/book/installing/linux/#red-hat-centos
+sudo wget -O /etc/yum.repos.d/jenkins.repo \
+    https://pkg.jenkins.io/redhat-stable/jenkins.repo
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+sudo yum upgrade
+sudo yum install epel-release java-11-openjdk-devel
+sudo yum install jenkins
+sudo systemctl daemon-reload
+
+==> after jenkins installed:
+start jenkins as a service:
+- sudo service jenkins start
+start jenkins service at boot-up:
+- sudo chkconfig jenkins on
+Access ur jenkins url:
+- http://publicip:8080/ -> enable 8080 port in sg inbound rules
+
+==> Now it asks for pwd:
+cat /var/lib/jenkins/secrets/initialAdminPassword
+
+==> once logged in, use this option
+- Install suggested plugins
+-----------------------------
+Jenkins Overview:
+
+New Item:
+- different types of project/jobs
+	*- freestyle project
+	*- pipeline
+	*- multi-configuration project
+	- folder
+	- github organization
+	- multibranch pipeline
+	
+People 
+- lists the users who can use jenkins
+- to add new users -> go to "Manage Jenkins" option
+
+Build History:
+- shows the jobs which are built
+
+Manage Jenkins:
+- System Config
+	- Config system ==> configure global settings and paths(server level config and email settings)
+		- home directory: /var/lib/jenkins
+		- # of executors: 2 (based on cpu core we can mention here; parallel jobs execution)
+	- Global Tool Config ==> configure tools, their locations and automatic installers(if you install any s/w like java, maven, git etc, we can manage it here)
+	- Manage Plugins ==>  Add, remove, disable or enable plugins  
+	- Manage Nodes and Clouds ==> add, remove, control and monitor the various nodes that jenkins runs jobs on 
+- Security
+	- Configure Global Security ==> Secure Jenkins; define who is allowed to access the system 
+	- Manage Credentials ==> config credentials (github: if you want to access code, give the credentials here)
+	- Configure Credential Providers ==> config credential providers and types 
+
+My Views:
+- view automatically displays all the jobs that the current user has an access to.
+---------------------------------
+Build Automation:
+- instead of clicking "build now" button, we can do a automated way
+
+types:
+- poll scm: after pushing the code, it will wait for sometime and the job will be trigerred
+- Build periodically: we no need to worry about code is committed or not. it will trigger as per the scheduled time
+- GitHub hook trigger for GITScm polling: after pushing the code, immediately job will be trigger
+
+Summary:
+- poll scm: push + time(cronjob = * * * * *)
+- build periodically: time(cronjob = 02 12 * * *) -> UTC time
+- webhooks: push(http://3.110.142.209:8080/github-webhook/)
+---------------------------------
+Build Tools:
+- Build tools are commonly known as programs that automate the process of building an executable application from source code
+- This building process includes activities like compiling, linking and packaging the code into an executable form
+
+- adding a jar file
+- creating a project structure 
+- executing the program
+- testing the application
+- pushing artifactory
+- creating a package(final o/p .war/.jar)
+- deploying apps
+- creates a documents
+---------------------------------
+Types:
+- java:
+	- ant
+	- maven  
+	- gradle
+- .net 
+	- msbuild
+- python
+	- egg
+	- wheel
+	- grape
+- scala
+	- sbt
+---------------------------------
+Maven Architecture:
+3 repos
+1. local(pom.xml) -> if jar is un-available it pulls from remote(github repo for a company where no. of developers work here, even if the jars are unavailable in remote it pulls from central repo - we need to have internet connection b/w local and central to download for the first time)
+2. remote
+3. central
+---------------------------------
+Maven Lifecycle:** for devops
+- when u write the code and project structure(adding libraries like dependency files/adding source code/add test classes) - it will check 
+
+Mandatory life cycle steps:
+	validate -- check the folder structure, if not mentioned it wont create folder structure
+	compile -- compiles the source code 
+	test -- test classes execution
+	package -- final output (.war or .jar written in pom.xml file under tag <packaging>)
+
+rarely used steps:
+	verify -- verify the s/w we want to install
+	install -- if not present it will install
+	deploy -- it will deploy the s/w in server
+
+inbuilt life cycle:
+	clean -> previous output created by the project will be deleted automatically
+
+	- ex. if mvn validate is run -> it runs clean + validate 
+	- pipeline job command(mvn clean package)
+	- freestly job command(clean package)
+	
+how the previous output created?
+- when mvn compile/package is run it create a folder "target"
+- inside "target" folder output(.war/.jar) is created 
+- again if mvn compile/package is given it deletes the target folder and re-creates a new one
+
+ex. mvn validate -> clean + only validate life cycle executes 
+	mvn compile -> clean + validate + compile life cycle executes 
+	mvn test -> clean + validate + compile + test life cycle executes 
+	mvn package -> clean + validate + compile + test + package life cycle executes 
+---------------------------------
+pom.xml:
+- project object model
+- all jar files will be mentioned 
+- first pom.xml file looks for jars inside local repo, if not there it looks into remote, even if here it is not there it pulls from central repo and places in the server, next time on wards it pulls from system as we downloaded it already 
+- tag structure: ** not for devops 
+	- project
+	- modelVersion
+	- groupId
+	- artifactId
+	- version
+	- name
+	- description
+	- dependencies
+		<dependency>
+	- build 
+		<plugins>
+			<plugin>
+	- repositories
+		<repository>
+
+- important interview question --> <packaging>.war/.jar</packaging>
+---------------------------------
+settings.xml: 
+- contains details about remote repo url/username/pwd/proxy
+---------------------------------
+install maven:
+- https://gist.github.com/sebsto/19b99f1fa1f32cae5d00
+---------------------------------
+create maven project thru cmd line:
+- https://maven.apache.org/guides/getting-started/maven-in-five-minutes.html
+---------------------------------
+push maven project to github:
+- git init, git remote add .., git commit, git push
+---------------------------------
+integrate maven project to jenkins:
+- give the github repo link, credentials and clone the repo
+- click on Build-> Invoke Top level maven targets
+				-> maven version (select it) (maven3 -> /usr/share/apache-maven)
+				-> goals -> package(target folder will be created, u can see the executable file jar or war)
+---------------------------------
+Flow chart:
+-> git -> github -> jenkins -> maven -> apache tomcat(deploy)
+---------------------------------
+apache tomcat:
+- web  server where we deploy .war file 
+- runs on port 8080 usually, we can run on other port as jenkins runs on 8080, open server.xml and edit
+-  written in java
+- servlet container
+- bin/
+	- startup.sh and shutdown.sh tomcat server
+- conf/
+	- Catalina/ -> engine 
+	- server.xml -> (ports-http, ajp, https, ssl)
+	- tomcat-users.xml -> username and password, roles 
+- webapps
+	- .war files will be here
+	ex. sample.war and sample/
+	- use ipaddr:8080/sample - we can access application from browser
+	
+	- manager/META-INF/context.xml
+	    - we need to comment valve tag(default-enabled)-> when we are not  able to access tomcat 
+---------------------------------
+apache tomcat installation - aws:
+WAY 1: but not recommended
+
+wget https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.73/bin/apache-tomcat-8.5.73.tar.gz
+tar -xzvf apache-tomcat-8.5.73.tar.gz
+cd apache-tomcat-8.5.73/
+
+[ec2-user@ip-172-31-35-175 bin]$ sh startup.sh
+Using CATALINA_BASE:   /home/ec2-user/apache-tomcat-8.5.73
+Using CATALINA_HOME:   /home/ec2-user/apache-tomcat-8.5.73
+Using CATALINA_TMPDIR: /home/ec2-user/apache-tomcat-8.5.73/temp
+Using JRE_HOME:        /usr
+Using CLASSPATH:       /home/ec2-user/apache-tomcat-8.5.73/bin/bootstrap.jar:/home/ec2-user/apache-tomcat-8.5.73/bin/tomcat-juli.jar
+Using CATALINA_OPTS:
+Tomcat started.
+
+[ec2-user@ip-172-31-35-175 bin]$ sh shutdown.sh
+Using CATALINA_BASE:   /home/ec2-user/apache-tomcat-8.5.73
+Using CATALINA_HOME:   /home/ec2-user/apache-tomcat-8.5.73
+Using CATALINA_TMPDIR: /home/ec2-user/apache-tomcat-8.5.73/temp
+Using JRE_HOME:        /usr
+Using CLASSPATH:       /home/ec2-user/apache-tomcat-8.5.73/bin/bootstrap.jar:/home/ec2-user/apache-tomcat-8.5.73/bin/tomcat-juli.jar
+Using CATALINA_OPTS:
+
+==> as jenkins is already running on 8080, tomcat will not run now, justshutdown the tomcat and change the server.xml file and start again 
+----------------------------------
+WAY 2: recommended
+- sudo yum install tomcat -y
+- sudo yum install tomcat-webapps tomcat-docs-webapp tomcat-admin-webapps -y
+- cd /etc/tomcat/
+- sudo vim server.xml
+- edit connector port from 8080 to 8081
+- sudo vi tomcat-users.xml
+- uncomment role tag in bottom
+- sudo service tomcat start
+Redirecting to /bin/systemctl start tomcat.service
+- sudo service tomcat status
+Redirecting to /bin/systemctl status tomcat.service
+● tomcat.service - Apache Tomcat Web Application Container
+   Loaded: loaded (/usr/lib/systemd/system/tomcat.service; disabled; vendor preset: disabled)
+   Active: active (running) since Thu 2022-01-06 13:26:58 UTC; 14s ago
+ Main PID: 8361 (java)
+   CGroup: /system.slice/tomcat.service
+           └─8361 /usr/lib/jvm/jre/bin/java -classpath /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar:/usr/share/java/commons-d...
+
+Jan 06 13:27:04 ip-172-31-35-175.ap-south-1.compute.internal server[8361]: Jan 06, 2022 1:27:04 PM org.apache.catalina.startup.HostConfig deployDirectory
+Jan 06 13:27:04 ip-172-31-35-175.ap-south-1.compute.internal server[8361]: INFO: Deploying web application directory /var/lib/tomcat/webapps/docs
+Jan 06 13:27:05 ip-172-31-35-175.ap-south-1.compute.internal server[8361]: Jan 06, 2022 1:27:05 PM org.apache.catalina.startup.TldConfig execute
+Jan 06 13:27:05 ip-172-31-35-175.ap-south-1.compute.internal server[8361]: INFO: At least one JAR was scanned for TLDs yet contained no TLDs. Enable... time.
+Jan 06 13:27:05 ip-172-31-35-175.ap-south-1.compute.internal server[8361]: Jan 06, 2022 1:27:05 PM org.apache.catalina.startup.HostConfig deployDirectory
+Jan 06 13:27:05 ip-172-31-35-175.ap-south-1.compute.internal server[8361]: INFO: Deployment of web application directory /var/lib/tomcat/webapps/doc...331 ms
+Jan 06 13:27:05 ip-172-31-35-175.ap-south-1.compute.internal server[8361]: Jan 06, 2022 1:27:05 PM org.apache.coyote.AbstractProtocol start
+Jan 06 13:27:05 ip-172-31-35-175.ap-south-1.compute.internal server[8361]: INFO: Starting ProtocolHandler ["http-bio-8081"]
+Jan 06 13:27:05 ip-172-31-35-175.ap-south-1.compute.internal server[8361]: Jan 06, 2022 1:27:05 PM org.apache.catalina.startup.Catalina start
+Jan 06 13:27:05 ip-172-31-35-175.ap-south-1.compute.internal server[8361]: INFO: Server startup in 3759 ms
+Hint: Some lines were ellipsized, use -l to show in full.
+
+- now enable inbound port in aws ec2 -> 8081
+- in real time jenkins, tomcat, sonarqube will be present in different ec2 machines.
+----------------------------------
+maven with jenkins - real time project on tomcat deployment:
+- https://github.com/thakursuraj509/spring3-mvc-maven-xml-hello-world
+- http://13.233.178.195:8080/pluginManager/available -> search for "Deploy to container"  plugin and click install without restart
+- for tomcat deploy, configure the job and click Post build actions -> http://13.233.178.195:8080/job/mkyong/configure
+----------------------------------
+Email notifications:
+1. mailer plugin - send mail notification entire console log into email body; 
+				 - subject body is fixed
+	working:
+	jenkins job failed -> mail alert
+	jenkins job failed -> mail alert
+	jenkins job failed -> mail alert
+	jenkins job failed -> mail alert
+	jenkins job success -> mail alert
+	jenkins job success -> no mail alert
+	jenkins job failed -> mail alert
+	jenkins job failed -> mail alert
+	jenkins job failed -> mail alert
+2. extended-mailer plugin - send entire console log in attachment/send particular recipients/send particular failure time
+						  - subject body is customized
+	working:
+	if u want mail for failure/success everytime use this
+
+Jenkins setup for email:
+- https://accounts.google.com/DisplayUnlockCaptcha - continue
+- https://myaccount.google.com/lesssecureapps - ON
+- click post build actions and select  email notification 
+- http://13.233.178.195:8080/configure - check email notification settings                                
+----------------------------------
+maven real time project with gaming: assignment
+maven real time project with web app(pet clinic): assignment
+----------------------------------
+upstream/downstream jobs:
+- when there is a dependency from one job to another job we use this
+- if you want to run multiple jobs at a time 
+
+			upstream jobs			downstream jobs                                                         
+ui			- no job		    	- business
+business	- ui  					- db
+db			- business				- no job
+
+build now button on ui -> it builds ui+business+db
+					business -> business,db
+					db -> db
+
+- go to jenkins and create 3 jobs 
+- http://13.233.178.195:8080/job/business/configure
+----------------------------------
+Build Pipeline view:
+- to view all the jenkins upstream and downstream console outputs 
+- install the plugin - build pipeline and refer http://13.233.111.112:8080/view/my-dashboard/
+ ----------------------------------  
+Master/slave architecture: java 1.8 is mandatory in master and salve
+- if the jenkins jobs run on master node, due to load, the builds will not be starting. 
+- master node will distribute load to slave node (jobs will be shown in master node but the job processing/storage will be saved to slave node)
+- set up => manage jenkins -> manage nodes and clouds 
+- new node
+- name of node (permanent agent)
+- # of exec - 1
+- remote root directory - 2nd ec2 server path(/home/ec2-user/jenkins_data)
+- labels - slave
+- usage - use this node ....
+- launch method - via  ssh
+- host -  public ip - remote server
+- credentials - kind(username with provate key)
+	- id - ec2_credentials
+	- description - anything
+	- username -  ec2-user
+	- private key  -  enter directly key - copy paste .pem file content
+- host key verification strategy - manually trusted key verification strategy
+- save and refresh page to see slave online
+----------------------------------
+Setup slave job:
+- in general - checkbox on "restrict where this project can be run 
+- give the same label name of slave  node
+- give github link in scm
+- make sure git is installed in slave machine
+- if u build maven/tomcat project,  make sure it is installed there 
+----------------------------------
+Jenkins Home folder:
+master node: /var/lib/jenkins
+slave node: /home/ec2-user/jenkins_data
+----------------------------------
+Dashboard view:
+- multiple project info can be seen in the dashboard instead of checking each job for results 
+- helpful for managers
+- dashboard view plugin needs installation 
+- http://13.233.111.112:8080/view/my-dashboard-view/
+----------------------------------
+junit test integration:
+- junit - test framework for java
+- once we do maven package -> it generates test cases which are in xml format. 
+- to view the results properly, click on post build actions and select "publish JUnit test result report"
+- test report xmls - **/target/surefire-reports/*.xml
+- save it and build
+- once done you can see -> Test Result Trend graph
+----------------------------------
+Test Result Analyzer:
+- install plugin "Test Results Analyzer" to see the graphs in more realistic way 
+- This plugin shows history of test execution results in a tabular or graphical format. 
+- http://13.233.111.112:8080/configure and click "Test Results Analyzer" if you want to modify settings
+- click on any jenkins job now, you will see a option "Test Results Analyzer" on left menu
+----------------------------------
+Nexus:
+- 
