@@ -1,0 +1,747 @@
+Install GIT:
+sudo yum install git -y
+git --version
+--------------------
+Configure GIT:
+git config --global --edit
+git config --list
+user.name=thakursuraj509
+user.email=thakursuraj509@gmail.com
+core.repositoryformatversion=0
+core.filemode=true
+core.bare=false
+core.logallrefupdates=true
+--------------------
+To edit config file:
+vi ~/.gitconfig
+--------------------
+Create GitHub account, create a repo and configure SSH keys:
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -> configure ssh keys for github
+cat ~/.ssh/id_rsa.pub
+--------------------
+Adding remote origin:
+git remote add origin git@github.com:thakursuraj509/first.git
+git remote -v
+
+To update the above remote:
+git remote set-url origin <https:....>
+------------------
+Procedure:
+create empty folder
+create a sample file with content
+git init
+git status
+git add .
+git commit -m "message"
+git push origin master
+------------------
+clone -> to get entire code from remote to local
+pull  -> to get updated files from remote to local
+fork  -> to get entire repo(public) code from another github account to my github account
+------------------
+Merge issue:
+- dev 1 created a file and dev 2 did not pull the update and try to push another file, he gets error,
+- dev 2 run pull cmd -> he gets a message to edit the message, he can edit it or simply save it, once saved he gets this as below:
+Merge made by the 'recursive' strategy.
+ test.txt | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 test.txt
+- now dev 2 run push cmd without any errors
+------------------
+Merge conflicts:
+
+DEFINITION:
+- Conflicts generally arise when two people have changed the same lines in a file, or if one developer deleted a file while another developer was modifying it. 
+- In these cases, Git cannot automatically determine what is correct. 
+- Conflicts only affect the developer conducting the merge, the rest of the team is unaware of the conflict. 
+- Git will mark the file as being conflicted and halt the merging process. 
+- It is then the developers' responsibility to resolve the conflict.
+
+
+- one repo one file with only 1 line code 
+- 2 developers took latest repo code - work on same file and editing from line 2
+- dev 1 pushed the changes to repo(previous code+dev 1 code changes), dev 2 started working from line 2 and try to push, now he gets error -> asks to get the latest changes in local and work on it and push
+- both dev 1 and dev 2 - started at same line, so it asks whose changes should be kept first and whose changes would be next - merge conflict happens
+this is sample
+<<<<<<< HEAD
+this is naveen line								  -> new code 
+=======
+this is sandeep line
+>>>>>>> faabc7f8021de28e89320cf9ba000af5f1d77968  -> old code 
+
+- open the file and remove unwanted characters and keep dev 1 code or dev 2 code and git(add + commit + push) 
+[ec2-user@ip-172-31-35-175 second]$ vi sample.txt
+[ec2-user@ip-172-31-35-175 second]$ git status
+On branch master
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+  (use "git merge --abort" to abort the merge)
+
+Unmerged paths:
+  (use "git add <file>..." to mark resolution)
+        both modified:   sample.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+[ec2-user@ip-172-31-35-175 second]$ git add .
+[ec2-user@ip-172-31-35-175 second]$ git commit -m "remove the merge conflicts"
+[master e42b1d4] remove the merge conflicts
+[ec2-user@ip-172-31-35-175 second]$ git push origin master
+Enumerating objects: 10, done.
+Counting objects: 100% (10/10), done.
+Compressing objects: 100% (5/5), done.
+Writing objects: 100% (6/6), 571 bytes | 571.00 KiB/s, done.
+Total 6 (delta 2), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (2/2), completed with 1 local object.
+To github.com:thakursuraj509/second.git
+   faabc7f..e42b1d4  master -> master
+------------------
+Branches + Tagging:
+- branch types - feature, release, hotfix, bugfix, master
+demo:
+[ec2-user@ip-172-31-35-175 oldproject]$ git branch <branch_name>
+[ec2-user@ip-172-31-35-175 oldproject]$ git branch -a
+  feature
+* main
+  remotes/origin/HEAD -> origin/main
+  remotes/origin/main
+[ec2-user@ip-172-31-35-175 oldproject]$ git checkout feature
+Switched to branch 'feature'
+[ec2-user@ip-172-31-35-175 oldproject]$ git branch -a
+* feature
+  main
+  remotes/origin/HEAD -> origin/main
+  remotes/origin/main
+------------------  
+Shorcut:
+git checkout -b <branch_name>
+------------------
+Delete Local Branch  
+[ec2-user@ip-172-31-35-175 oldproject]$ git branch
+  feature
+* main
+[ec2-user@ip-172-31-35-175 oldproject]$ git branch -d feature
+Deleted branch feature (was 16d1714).
+------------------
+Delete Remote branch
+[ec2-user@ip-172-31-35-175 oldproject]$ git branch
+  feature
+* main
+[ec2-user@ip-172-31-35-175 oldproject]$ git push origin -d feature
+To github.com:thakursuraj509/oldproject.git
+ - [deleted]         feature
+------------------
+Raise PR -> do it GUI
+Raise PR -> do it cli:
+PR(hotfix -> main) -> go to main branch and run -> git merge hotfix -> enter -> verify message and save it -> git push origin main -> DONE
+------------------
+Add rules for merging code:
+- add reviewers
+- it blocks until reviewers approve PR
+------------------
+GIT FETCH:
+- to get latest branches and tags from remote to local
+- wont effect the working area(u wont get merge conflicts as it wont touch the working files)
+
+demo:
+- create a branch in GUI github 
+- run git branch -a 
+- if u dont see that branch in local, run git fetch
+- now run git branch -a to see that newly created branch
+
+[ec2-user@ip-172-31-35-175 oldproject]$ git branch -a
+* main
+  remotes/origin/HEAD -> origin/main
+  remotes/origin/main
+[ec2-user@ip-172-31-35-175 oldproject]$ git fetch
+From github.com:thakursuraj509/oldproject
+ * [new branch]      feature    -> origin/feature
+[ec2-user@ip-172-31-35-175 oldproject]$ git branch -a
+* main
+  remotes/origin/HEAD -> origin/main
+  remotes/origin/feature
+  remotes/origin/main
+[ec2-user@ip-172-31-35-175 oldproject]$ git checkout feature
+Branch 'feature' set up to track remote branch 'feature' from 'origin'.
+Switched to a new branch 'feature'
+[ec2-user@ip-172-31-35-175 oldproject]$ git branch -a
+* feature
+  main
+  remotes/origin/HEAD -> origin/main
+  remotes/origin/feature
+  remotes/origin/main 
+-----------------------------
+GIT PULL:
+- same as git fetch but now it will effect the working area
+-----------------------------
+Git Tagging:
+version changes 
+1.0 -> 1.1 -> 2.0
+-----------------------------
+To view the tags:
+git tag -l or git tag --list
+-----------------------------
+To push multiple tags:
+git push origin --tags
+-----------------------------
+Tag types:
+1. light weight - create a tag and version number
+ex. git tag v1.0
+2. annotated - contain tagger name, email, date; have a tagging message
+ex. git tag -a v1.1 -m "this is first release"
+-----------------------------
+demo for light weight:
+[ec2-user@ip-172-31-35-175 oldproject]$ git tag --list
+[ec2-user@ip-172-31-35-175 oldproject]$ ls
+baby.txt  ex.txt  hello.txt  hotfix.txt  README.md  testing.txt
+[ec2-user@ip-172-31-35-175 oldproject]$ git tag v1.1
+[ec2-user@ip-172-31-35-175 oldproject]$ git tag --list
+v1.1
+
+[ec2-user@ip-172-31-35-175 oldproject]$ git status
+On branch feature
+Your branch is up to date with 'origin/feature'.
+
+nothing to commit, working tree clean
+[ec2-user@ip-172-31-35-175 oldproject]$ git log
+commit 0357c64ffacdd9f0ca4da39d7e7c9fb1bbaa5214 (HEAD -> feature, tag: v1.1, origin/main, origin/feature, origin/HEAD, main)
+Merge: 44da642 d92a3b3
+Author: thakursuraj509 <thakursuraj509@gmail.com>
+Date:   Mon Dec 20 16:33:21 2021 +0000
+
+    Merge branch 'hotfix'
+	
+[ec2-user@ip-172-31-35-175 oldproject]$ git branch
+* feature
+  main
+[ec2-user@ip-172-31-35-175 oldproject]$ git push origin v1.1
+Total 0 (delta 0), reused 0 (delta 0), pack-reused 0
+To github.com:thakursuraj509/oldproject.git
+ * [new tag]         v1.1 -> v1.1
+
+-----------------------------
+demo for annotated:
+[ec2-user@ip-172-31-35-175 oldproject]$ vi bugfree.txt
+[ec2-user@ip-172-31-35-175 oldproject]$ git add .
+[ec2-user@ip-172-31-35-175 oldproject]$ git branch
+* feature
+  main
+[ec2-user@ip-172-31-35-175 oldproject]$ git commit -m "added bugfree"
+[feature 24bf132] added bugfree
+ 1 file changed, 1 insertion(+)
+ create mode 100644 bugfree.txt
+[ec2-user@ip-172-31-35-175 oldproject]$ git tag -l
+v1.1
+[ec2-user@ip-172-31-35-175 oldproject]$ git tag -a v1.2 -m "added new version"
+[ec2-user@ip-172-31-35-175 oldproject]$ git tag -l
+v1.1
+v1.2
+[ec2-user@ip-172-31-35-175 oldproject]$ git push origin feature
+Enumerating objects: 4, done.
+Counting objects: 100% (4/4), done.
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 275 bytes | 275.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To github.com:thakursuraj509/oldproject.git
+   0357c64..24bf132  feature -> feature
+[ec2-user@ip-172-31-35-175 oldproject]$ git push origin v1.2
+Enumerating objects: 1, done.
+Counting objects: 100% (1/1), done.
+Writing objects: 100% (1/1), 165 bytes | 165.00 KiB/s, done.
+Total 1 (delta 0), reused 0 (delta 0), pack-reused 0
+To github.com:thakursuraj509/oldproject.git
+ * [new tag]         v1.2 -> v1.2
+-----------------------------
+Create a tag for already commited code:
+[ec2-user@ip-172-31-35-175 oldproject]$ git tag v0.1 <commit id>d92a3b3
+[ec2-user@ip-172-31-35-175 oldproject]$ git tag -l
+v0.1
+v1.1
+v1.2
+---------------------------
+Delete TAGS:
+[ec2-user@ip-172-31-35-175 oldproject]$ git tag -d v0.1
+Deleted tag 'v0.1' (was d92a3b3)
+[ec2-user@ip-172-31-35-175 oldproject]$ git push origin :refs/tags/v0.1
+To github.com:thakursuraj509/oldproject.git
+ - [deleted]         v0.1
+---------------------------
+Git Log:
+[ec2-user@ip-172-31-35-175 oldproject]$ git log --pretty=oneline
+---------------------------
+Git UNDO:
+1. git checkout <before staging area, if u want to undo changes>
+ex. git checkout file1 file2
+ex. git checkout *
+demo:
+[ec2-user@ip-172-31-35-175 oldproject]$ git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   baby.txt
+        modified:   testing.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+[ec2-user@ip-172-31-35-175 oldproject]$ cat baby.txt
+hello baby
+this is second line
+[ec2-user@ip-172-31-35-175 oldproject]$ cat testing.txt
+testing
+testing again
+[ec2-user@ip-172-31-35-175 oldproject]$ git checkout baby.txt
+Updated 1 path from the index
+[ec2-user@ip-172-31-35-175 oldproject]$ git checkout testing.txt
+Updated 1 path from the index
+[ec2-user@ip-172-31-35-175 oldproject]$ cat testing.txt
+testing
+[ec2-user@ip-172-31-35-175 oldproject]$ cat baby.txt
+hello baby
+[ec2-user@ip-172-31-35-175 oldproject]$ git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+nothing to commit, working tree clean
+------------------------------------------
+2. git reset
+	-> --soft => deletes commit, keeps code in staging area and working area
+	-> --mixed(default) => deletes commit and code from staging area, keeps code in working area
+	-> --hard => deletes commit, code from staging and working area
+------------------------------------------
+demo --soft:
+	ex. git reset --soft HEAD~1 
+[ec2-user@ip-172-31-35-175 oldproject]$ vi hello.txt
+[ec2-user@ip-172-31-35-175 oldproject]$ git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   hello.txt
+[ec2-user@ip-172-31-35-175 oldproject]$ git add hello.txt
+[ec2-user@ip-172-31-35-175 oldproject]$ git commit -m "modified hello file"
+[main 65708ba] modified hello file
+ 1 file changed, 1 insertion(+)
+
+[ec2-user@ip-172-31-35-175 oldproject]$ git reset --soft HEAD~1 
+[ec2-user@ip-172-31-35-175 oldproject]$ git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   hello.txt
+------------------------------------------
+demo --mixed: 
+
+ex. git reset --mixed HEAD~1 or git reset HEAD~1
+
+[ec2-user@ip-172-31-35-175 oldproject]$ git reset HEAD~1
+Unstaged changes after reset:
+M       hello.txt
+
+[ec2-user@ip-172-31-35-175 oldproject]$ git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   hello.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+------------------------------------------
+demo --hard: 
+
+[ec2-user@ip-172-31-35-175 oldproject]$ git status
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit.
+  (use "git push" to publish your local commits)
+
+nothing to commit, working tree clean
+
+[ec2-user@ip-172-31-35-175 oldproject]$ git reset --hard HEAD~1
+HEAD is now at 0093fd1 Merge pull request #5 from thakursuraj509/feature
+
+[ec2-user@ip-172-31-35-175 oldproject]$ cat hello.txt
+sth
+
+[ec2-user@ip-172-31-35-175 oldproject]$ git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+nothing to commit, working tree clean
+------------------------------------------
+3. revert => undo changes in remote+local repo
+
+demo:
+[ec2-user@ip-172-31-35-175 oldproject]$ vi hello.txt
+[ec2-user@ip-172-31-35-175 oldproject]$ git add .
+[ec2-user@ip-172-31-35-175 oldproject]$ git commit -m "updated hello"
+[main 2088cd6] updated hello
+ 1 file changed, 1 insertion(+)
+[ec2-user@ip-172-31-35-175 oldproject]$ git push origin main
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 262 bytes | 262.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To github.com:thakursuraj509/oldproject.git
+   0093fd1..2088cd6  main -> main
+   
+[ec2-user@ip-172-31-35-175 oldproject]$ git revert 2088cd6 (notes: it open editor, u can save it now-> it creates a new commit)
+[main de346cc] Revert "updated hello"
+ 1 file changed, 1 deletion(-)
+
+[ec2-user@ip-172-31-35-175 oldproject]$ git log
+commit de346ccaedd634a70f7aaaf6c96d9ea1477bc705 (HEAD -> main)
+Author: thakursuraj509 <thakursuraj509@gmail.com>
+Date:   Tue Dec 21 08:19:09 2021 +0000
+
+    Revert "updated hello"
+
+    This reverts commit 2088cd6de603397ad0113f078608242c974a0626.
+
+commit 2088cd6de603397ad0113f078608242c974a0626 (origin/main, origin/HEAD)
+Author: thakursuraj509 <thakursuraj509@gmail.com>
+Date:   Tue Dec 21 07:57:13 2021 +0000
+
+    updated hello
+
+[ec2-user@ip-172-31-35-175 oldproject]$ git status
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit.
+  (use "git push" to publish your local commits)
+
+nothing to commit, working tree clean
+[ec2-user@ip-172-31-35-175 oldproject]$ git push origin main
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 288 bytes | 288.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To github.com:thakursuraj509/oldproject.git
+   2088cd6..de346cc  main -> main
+------------------------------------------
+1.git merge            -> all commits from feature branch will be added to the base branch via a merge commit
+2.git squash and merge -> loss of commit history of feature or any branch(the commits from feature branch will be combined into 1 commit in the base branch)
+3.git rebase and merge -> maintain development history(the commits from feature branch will be rebased and added to the base branch)
+
+1. go to master branch, run
+[ec2-user@ip-172-31-35-175 latest]$ git merge feature
+------------------------------------------
+2. go to master branch, run
+[ec2-user@ip-172-31-35-175 latest]$ git merge --squash feature
+Squash commit -- not updating HEAD
+Automatic merge went well; stopped before committing as requested
+
+[ec2-user@ip-172-31-35-175 latest]$ git status
+On branch master
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        new file:   jms.txt
+        new file:   punu.txt
+        new file:   vishnu.txt
+
+[ec2-user@ip-172-31-35-175 latest]$ git commit -m "squash merging"
+[master 187d0c1] squash merging
+ 3 files changed, 3 insertions(+)
+ create mode 100644 jms.txt
+ create mode 100644 punu.txt
+ create mode 100644 vishnu.txt
+
+[ec2-user@ip-172-31-35-175 latest]$ git log --oneline
+187d0c1 (HEAD -> master) squash merging
+6e38df8 (origin/master) m4
+33893ee m3
+af8fb6d m2
+d53bb7c m1
+------------------------------------------
+go to master branch, run
+[ec2-user@ip-172-31-35-175 latest]$ git reset --hard HEAD~1
+HEAD is now at 6e38df8 m4
+[ec2-user@ip-172-31-35-175 latest]$ git log --oneline
+6e38df8 (HEAD -> master, origin/master) m4
+33893ee m3
+af8fb6d m2
+d53bb7c m1
+------------------------------------------
+3. go to feature branch, run 
+[ec2-user@ip-172-31-35-175 latest]$ git branch
+* feature
+  master
+[ec2-user@ip-172-31-35-175 latest]$ git rebase master
+Successfully rebased and updated refs/heads/feature.
+[ec2-user@ip-172-31-35-175 latest]$ git log --oneline
+ae3797c (HEAD -> feature) f3
+a090623 f2
+01264cd f1
+6e38df8 (origin/master, master) m4
+33893ee m3
+af8fb6d m2
+d53bb7c m1
+
+[ec2-user@ip-172-31-35-175 latest]$ git checkout master
+Switched to branch 'master'
+[ec2-user@ip-172-31-35-175 latest]$ git branch
+  feature
+* master
+[ec2-user@ip-172-31-35-175 latest]$ git rebase feature
+Successfully rebased and updated refs/heads/master.
+[ec2-user@ip-172-31-35-175 latest]$ git log --oneline
+ae3797c (HEAD -> master, feature) f3
+a090623 f2
+01264cd f1
+6e38df8 (origin/master) m4
+33893ee m3
+af8fb6d m2
+d53bb7c m1
+
+[ec2-user@ip-172-31-35-175 latest]$ git status
+On branch master
+nothing to commit, working tree clean
+
+[ec2-user@ip-172-31-35-175 latest]$ git push origin master
+Enumerating objects: 10, done.
+Counting objects: 100% (10/10), done.
+Compressing objects: 100% (6/6), done.
+Writing objects: 100% (9/9), 777 bytes | 777.00 KiB/s, done.
+Total 9 (delta 2), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (2/2), done.
+To github.com:thakursuraj509/latest.git
+   6e38df8..ae3797c  master -> master
+------------------------------------------
+Cherrypick: pick any (1) commit from one branch and apply to another branch 
+
+create a new branch from main branch
+-> git checkout -b ctest
+==> all code from main comes to ctest
+
+[ec2-user@ip-172-31-35-175 oldproject]$ vi newyear.txt
+[ec2-user@ip-172-31-35-175 oldproject]$ git add .
+[ec2-user@ip-172-31-35-175 oldproject]$ git commit -m "added new year file"
+[ctest 34e1d83] added new year file
+ 1 file changed, 1 insertion(+)
+ create mode 100644 newyear.txt
+
+[ec2-user@ip-172-31-35-175 oldproject]$ vi pongal.txt
+[ec2-user@ip-172-31-35-175 oldproject]$ git add .
+[ec2-user@ip-172-31-35-175 oldproject]$ git commit -m "added pongal file"
+[ctest cebd307] added pongal file
+ 1 file changed, 1 insertion(+)
+ create mode 100644 pongal.txt
+
+[ec2-user@ip-172-31-35-175 oldproject]$ ls -ltr
+total 32
+-rw-rw-r-- 1 ec2-user ec2-user 12 Dec 20 11:55 README.md
+-rw-rw-r-- 1 ec2-user ec2-user 16 Dec 20 11:59 ex.txt
+-rw-rw-r-- 1 ec2-user ec2-user  7 Dec 20 16:29 hotfix.txt
+-rw-rw-r-- 1 ec2-user ec2-user  8 Dec 21 07:01 bugfree.txt
+-rw-rw-r-- 1 ec2-user ec2-user  8 Dec 21 07:08 testing.txt
+-rw-rw-r-- 1 ec2-user ec2-user  7 Dec 21 13:11 pongal.txt
+-rw-rw-r-- 1 ec2-user ec2-user  2 Dec 21 13:11 newyear.txt
+-rw-rw-r-- 1 ec2-user ec2-user  8 Dec 21 13:11 dummy.txt
+
+
+
+==> Now switch to main branch and cherry pick one commit from ctest branch 
+
+[ec2-user@ip-172-31-35-175 oldproject]$ git checkout main
+Switched to branch 'main'
+Your branch is up to date with 'origin/main'.
+[ec2-user@ip-172-31-35-175 oldproject]$ git cherry-pick 34e1d83
+[main c1c2709] added new year file
+ Date: Tue Dec 21 12:58:32 2021 +0000
+ 1 file changed, 1 insertion(+)
+ create mode 100644 newyear.txt
+[ec2-user@ip-172-31-35-175 oldproject]$ ls -ltr
+total 28
+-rw-rw-r-- 1 ec2-user ec2-user 12 Dec 20 11:55 README.md
+-rw-rw-r-- 1 ec2-user ec2-user 16 Dec 20 11:59 ex.txt
+-rw-rw-r-- 1 ec2-user ec2-user  7 Dec 20 16:29 hotfix.txt
+-rw-rw-r-- 1 ec2-user ec2-user  8 Dec 21 07:01 bugfree.txt
+-rw-rw-r-- 1 ec2-user ec2-user  8 Dec 21 07:08 testing.txt
+-rw-rw-r-- 1 ec2-user ec2-user  8 Dec 21 12:53 dummy.txt
+-rw-rw-r-- 1 ec2-user ec2-user  2 Dec 21 13:04 newyear.txt
+------------------------------------------
+git squash:
+
+combine my last multiple commits into a single commit and do a push
+
+demo:
+- raise a PR from ctest -> main, 
+- now it has 2 commits 
+- now reviewer asks to keep only 1 commit so that he will approve PR 
+- use git squash to (combine multiple commits into 1 commit)
+
+[ec2-user@ip-172-31-35-175 second]$ git rebase -i HEAD~3
+[detached HEAD a8cbce1] update dummy again - squash happened
+ Date: Tue Dec 21 14:23:23 2021 +0000
+ 1 file changed, 3 insertions(+)
+ create mode 100644 dummy.txt
+Successfully rebased and updated refs/heads/feature.
+[ec2-user@ip-172-31-35-175 second]$ git push -f origin feature
+Enumerating objects: 4, done.
+Counting objects: 100% (4/4), done.
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 297 bytes | 297.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To github.com:thakursuraj509/second.git
+ + a639545...a8cbce1 feature -> feature (forced update)
+
+
+files will be present here, but only the commit will be removed(3 commits -> 1 commit)
+------------------------------------------
+git commit --amend:
+- rewrite the latest commit message
+
+demo:
+[ec2-user@ip-172-31-35-175 second]$ git log --oneline
+a8cbce1 (HEAD -> feature, origin/feature) update dummy again - squash happened
+
+
+[ec2-user@ip-172-31-35-175 second]$ git commit --amend -m "update the latest commit message"
+[feature 809e405] update the latest commit message
+ Date: Tue Dec 21 14:23:23 2021 +0000
+ 1 file changed, 3 insertions(+)
+ create mode 100644 dummy.txt
+[ec2-user@ip-172-31-35-175 second]$ git log --oneline                        
+809e405 (HEAD -> feature) update the latest commit message
+------------------------------------------
+to rename any commit message, pass n=1,2,3, any thing below
+git rebase -i HEAD~n
+-> give reword and save -> give a new name here and save 
+------------------------------------------
+git stash:
+- temporarily stashes changes you have made to ur working copy so you can work on sth else, and then comeback and re-apply them later on.
+- it is handy if you need to quickly switch context and work on something else, but you are mid way thru a code change and are not quite ready to commit
+- remembers the current state where we left our work in working area that are not ready to commit
+- we don't want to add and commit this changes as we are in middle of development
+- if you don't stash and do a pull, u will get a merge conflict 
+
+- want to save the history of local work -> apply git stash and do a pull and now apply git stash pop(it will revert the previous state)
+
+demo:
+
+[ec2-user@ip-172-31-35-175 second]$ vi dummy.txt  ==> add some code here(but u got a new work, so stash this)
+[ec2-user@ip-172-31-35-175 second]$ git status
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   dummy.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+[ec2-user@ip-172-31-35-175 second]$ git stash
+Saved working directory and index state WIP on master: 279488a Merge pull request #1 from thakursuraj509/feature
+[ec2-user@ip-172-31-35-175 second]$ git status
+On branch master
+nothing to commit, working tree clean
+
+<new bug received so work on this file and push changes>
+[ec2-user@ip-172-31-35-175 second]$ vi dummy.txt
+[ec2-user@ip-172-31-35-175 second]$ git add .
+[ec2-user@ip-172-31-35-175 second]$ git commit -m "bug fixed in dummy file"
+[master 618c04b] bug fixed in dummy file
+ 1 file changed, 1 insertion(+)
+[ec2-user@ip-172-31-35-175 second]$ git push origin master
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 294 bytes | 294.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To github.com:thakursuraj509/second.git
+   279488a..618c04b  master -> master
+
+[ec2-user@ip-172-31-35-175 second]$ git stash list
+stash@{0}: WIP on master: 279488a Merge pull request #1 from thakursuraj509/feature
+
+[ec2-user@ip-172-31-35-175 second]$ git status
+On branch master
+nothing to commit, working tree clean
+[ec2-user@ip-172-31-35-175 second]$ git stash pop
+Auto-merging dummy.txt
+CONFLICT (content): Merge conflict in dummy.txt
+The stash entry is kept in case you need it again.
+
+[ec2-user@ip-172-31-35-175 second]$ vi dummy.txt
+[ec2-user@ip-172-31-35-175 second]$ git status
+On branch master
+Unmerged paths:
+  (use "git restore --staged <file>..." to unstage)
+  (use "git add <file>..." to mark resolution)
+        both modified:   dummy.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+[ec2-user@ip-172-31-35-175 second]$ git add .
+[ec2-user@ip-172-31-35-175 second]$ git commit -m "updated stash code"
+[master 67b05e1] updated stash code
+ 1 file changed, 2 insertions(+)
+[ec2-user@ip-172-31-35-175 second]$ git push origin master
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 292 bytes | 292.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To github.com:thakursuraj509/second.git
+   618c04b..67b05e1  master -> master
+------------------------------------------
+----------------------------------------------------------------
+
+
+
+$ git restore .
+
+Neeraj@DESKTOP-58V0RH5 MINGW64 ~/Moon (master)
+$ git status -s
+?? file2.js
+
+Neeraj@DESKTOP-58V0RH5 MINGW64 ~/Moon (master)
+$ git clean -fd
+Removing file2.js
+
+Neeraj@DESKTOP-58V0RH5 MINGW64 ~/Moon (master)
+$ git status -s
+
+Restoring a file to an earlier version
+'
+Neeraj@DESKTOP-58V0RH5 MINGW64 ~/Moon (master)
+$ git rm file1.js
+rm 'file1.js'
+
+Neeraj@DESKTOP-58V0RH5 MINGW64 ~/Moon (master)
+$ git status -s
+D  file1.js
+
+Neeraj@DESKTOP-58V0RH5 MINGW64 ~/Moon (master)
+$ git commit -m "delete file1.js"
+[master 1a41538] delete file1.js
+ 1 file changed, 3 deletions(-)
+ delete mode 100644 file1.js
+ 
+Neeraj@DESKTOP-58V0RH5 MINGW64 ~/Moon (master)
+$ git log --oneline
+1a41538 (HEAD -> master) delete file1.js
+127e029 Add gitignore
+210f397 refactor code
+be19d6d removed file2.txt
+778741c new file added
+94ad9bf removed unused code
+398a77a Update
+a4f06db Ïnitial commit.
+
+Neeraj@DESKTOP-58V0RH5 MINGW64 ~/Moon (master)
+$ git restore --source=HEAD~1 file1.js
+
+Neeraj@DESKTOP-58V0RH5 MINGW64 ~/Moon (master)
+$ git status -s
+?? file1.js
