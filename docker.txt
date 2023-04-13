@@ -1,0 +1,274 @@
+Why docker:
+- compatability/dependency issue
+- long set up time
+- diff dev/tst/prd environments
+
+What can it do:
+- containerize apps
+- run each service with its own deps in separate containers
+--------------------------------------------------
+container   |container  |container  |container   |
+--------------------------------------------------
+Webserver	|DB			|Messaging 	|Orchestration|
+			|			|			|			  |
+nodejs		| mongodb 	|redis		|ansible      |
+<Lib><Deps>	|<Lib><Deps>|<Lib><Deps>|<Lib><Deps>  |
+------------  ---------- ------------ -------------
+<--------------DOCKER------------------------------>
+<--------------OS---------------------------------->
+<---------------H/W INFRA-------------------------->
+
+package and containerize apps and ship them and run anytime as many times as you want 
+-------------------------------------------------------------------
+DOCKER COMMANDS
+start a container
+docker run <image>
+
+list running containers
+docker ps
+
+list all containers
+docker ps -a 
+
+stop container
+docker stop <container name/id>
+
+remove container
+docker rm <container name/id>
+
+list images
+docker images
+
+remove images - first remove containers to remove image
+docker rmi <image name/id>
+
+download image
+docker pull <image name>
+
+append a command
+docker run ubuntu sleep 500
+
+execute a command
+	-> executes a command on running container
+docker exec <container id> cat /etc/hosts
+
+detach 
+docker run -d <image name> 
+a0678......
+
+attach
+docker attach a0678
+
+tag
+docker run <image name>:<tag>
+
+STDIN (-i -> interactive mode, t-> terminal)
+docker run -it <image name>
+Ex.
+Welcome! Pls enter your name: <provide input ??> and enter
+O/P: Hello and Welcome <??>
+
+Port mapping
+docker run -p <target port>:<source port> <image name>
+
+Volume mapping
+docker run -v <target volume>:/<source vloume> mysql
+/opt/data -> target volume location
+var/lib/mysql -> source vloume location 
+
+Inspect container
+docker inspect <container name>
+
+container logs
+docker logs <container name>
+
+environmental vars
+docker run -e APP_COLOR=red <image name>
+
+How to create my own image ?
+create a Dockerfile
+	FROM Ubuntu
+	RUN apt-get update
+	RUN apt-get install python
+
+	COPY . /opt
+
+	ENTRYPOINT FLASK_APP=/opt/app.py flask run
+
+
+build it
+	docker build . -f Dockerfile -t surthaku498/my-custom-app
+
+login to docker account
+	docker login
+	
+push to docker hub with your access
+	docker push surthaku498/my-custom-app
+	
+FAILURE
+- if for step 3 an error occured ? docker will use from cache, it will not start building steps 1,2
+
+
+ex. Dockerfile(ubuntu-sleeper)
+COMMAND (cmd line parameters gets replaced)
+	ex. docker run ubuntu sleep 5
+		FROM Ubuntu
+		CMD sleep 5 or CMD ["sleep", "5"]
+		
+		docker run ubuntu-sleeper -> it runs and sleeps for 5 sec -> sleep 5
+		docker run ubuntu-sleeper sleep 10 -> it over rides sleep 5 and runs for 10 sec -> sleep 10
+		
+		
+ENTRYPOINT (cmd line parameters gets appended)
+	ex.
+		FROM Ubuntu
+		ENTRYPOINT ["sleep"]
+
+		docker run ubuntu-sleeper 10 -> sleep 10
+		docker run ubuntu-sleeper -> error
+		
+		to fix error use below
+			ex.
+			FROM Ubuntu
+			ENTRYPOINT ["sleep"]
+			CMD ["5"]
+			
+			docker run ubuntu-sleeper -> 5
+			docker run ubuntu-sleeper 10 -> 10
+
+docker-compose
+- first install docker compose on system
+- if we need to set up a complex app running multiple services, we use docker-compose
+- instead of running multiple docker run commands, we can put all together in a docker-compose.yaml file(specify all services)
+- docker-compose up -> start the services
+- for linking 2 services use --link command
+	docker run -p 5000:80 --link <service> <image name>
+
+docker-compose.yaml
+
+version: "3"
+services:
+	redis:
+		image: redis
+
+	db:
+		image: postgres:9.4
+		environment:
+			POSTGRES_USER: postgres
+			POSTGRES_PASSWORD: postgres
+
+	vote:
+		image: voting-app or
+		build: ./vote(will have all dependencies with Dockerfile to build image)
+		ports:
+			- 5000:80
+
+	worker:
+		image: worker-app
+
+	result:
+		image: result-app
+		ports:
+			- 5001:80
+
+
+docker-compose up
+
+
+Docker Registry:
+Ex. docker.io/nginx/nginx
+ 
+ docker.io -> registry
+ nginx -> account/user
+ nginx -> image/repo
+ 
+Docker Engine/Host:
+- its a host where docker is installed on it
+- docker engine has 3 components
+	- docker cli - cli interface to perform actions as running/stopping containers destroying images etc..It uses REST API to interact with daemon 
+		NOTE: cli does not need to be on same host, it can be on another laptop and can still work with remote docker engine 
+				ex on laptop -> docker -H=10.123.2.1:2375 run nginx
+								-H=10.123.2.1:2375 ==> remote docker engine address 
+	- REST API server - API interface that programs can use to talk to the daemon and provide instructions
+	- docker deamon - background process that manages docker objects such as the images, containers, volumes and networks
+	
+Docker uses namespaces to isolate b/w containers
+		ex. PID, n/w, IPC, mount, unix time sharing,
+		all processess will have unique pid under docker host, and unique pid under each docker container, these 2 pid will never match
+		
+cgroups:
+docker containers share same system resources such as cpu and memory under docker host
+to restrict the usage for containers 
+docker run --cpu=.5 ubuntu ==> container will not take up more than 50% of host cpu at nay given time
+docker run --memory=100m ubuntu ==> uses only 100mb of host memory
+
+Docker storage:
+
+file system
+	/var/lib/dcoker
+		aufs
+		containers
+		images
+		volumes
+
+stores in layered archiecture
+Dockerfile to create an image uses layers(layers 1 to 5 -> READ ONLY)
+layer 1 base ubuntu
+layer 2 changes in apt packages
+layer 3 changes in pip packages
+layer 4 source code
+layer 5 entrypoint
+
+use build command to build image and run it to create a container
+
+layer 6 container layer (layer 6 is both R/W, stores data created by container like log file/tmp files,life of this layer is active until container is running)
+
+Volumes(volume and bind mounting)
+
+volume mount -> /var/lib/docker/volumes/<vol_name> -> default path
+bind mount   -> /data/mysql -> custom path 
+
+docker volume create <vol_name> or
+directly run docker run -v <vol_name>:/var/lib/mysql <image name>
+	- it creates a volume under /var/lib/docker (default path)
+	now run
+		- docker run -v <vol_name>:/var/lib/mysql <image name>
+		- if container is destroyed, we will still have data under <vol_name>
+		
+	- docker run -v /data/mysql:/var/lib/mysql mysql ==> /data/mysql - another data location already persists 
+		
+-v => old way
+--mount => new way
+ex: docker run --mount type=bind,source=/data/mysql,target=/var/lib/mysql mysql	
+
+Storage drivers(selection depends on underlying OS)
+* AUFS
+* ZFS
+* BTRFS
+* Device Mapper
+* Overlay
+* Overlay2
+
+docker history <image id> - shows the script used to create image
+
+docker system df -> actual disk usage of docker containers/images/local volumes
+
+docker system df -v -> breakdown of images, containers,volumes 
+
+Docker Networking:
+
+1. bridge - default n/w a container gets attached to (docker run ubuntu)
+		  - private internal n/w created by docker on the host 
+		  - all containers gets ip range - 172.17.x.x
+		  - to access containers from docker host web browser, map the ports of containers to the ports on docker host
+2. none - docker run ubuntu --network=none
+			- containers are not attached to any n/w 
+			- no access to external n/w or other containers, they run in isolated n/w
+			
+3. host - docker run ubuntu --network=host
+			- to access containers from externally(my laptop), associate the container to host n/w ip:port (http:10.0.0.16:5000) 
+			- no port mapping required here
+			
+User defined n/w:
+docker create network --driver bridge --subnet x.x.x.x/16 <n/w name>
+docker network ls
