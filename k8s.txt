@@ -1,0 +1,357 @@
+Kubernetes:
+- container orchestration technology
+- The process of automatically deploying and managing 100s of containers 
+	and upscale/downscale containers based on load in a cluster environment is known as Container Orchestration.
+
+Advantage: [HA and Auto-scaling/load balancing feature]
+- highly available(multiple instances of app running on different nodes)
+- user traffic is load balanced across various containers
+- when load increases it deployes more instances of apps seamlessly at service level
+- when we run out of h/w resources scale up/down the underlying nodes
+
+Architecture:
+	Nodes(Minions):
+	- A node is a machine – physical or virtual – on which kubernetesis installed. 
+	- A node is a worker machine and this is were containers will be launched by kubernetes.
+
+	Cluster:
+	- A cluster is a set of nodes grouped together. 
+	- This way even if one node fails you have your application still accessible from the other nodes. 
+	- Moreover having multiple nodes helps in sharing load as well.
+
+	Master:
+	- The master is another node with Kubernetes installed in it, and is configured as a Master. 
+	- The master watches over the nodes in the cluster and is responsible for the actual orchestration of containers on the worker nodes.
+
+Kubernetes Components:
+	- API server:
+	The API server acts as the front-end for kubernetes. 
+	The users, management devices, Command line interfaces all talk to the API server to interact with the kubernetes cluster.
+
+	- etcd
+	ETCD is a distributed reliable key-value store used by kubernetes to store all data used to manage the cluster.
+
+	- scheduler
+	The scheduler is responsible for distributing work or containers across multiple nodes. 
+	It looks for newly created containers and assigns them to Nodes.
+
+	- controller
+	The controllers are the brain behind orchestration. 
+	They are responsible for noticing and responding when nodes, containers or endpoints goes down. 
+	The controllers makes decisions to bring up new containers in such cases.
+
+	- container runtime
+	The container runtime is the underlying software that is used to run containers. 
+	In our case it happens to be Docker.
+
+	- kubelet
+	kubelet is the agent that runs on each node in the cluster. 
+	The agent is responsible for making sure that the containers are running on the nodes as expected.
+
+Master Node vs Worker Node:
+
+	Master:
+		kube-apiserver
+		etcd
+		contoller
+		scheduler
+
+
+	Worker:
+		kubelet agent
+		container runtime(docker)
+		
+kubectl:
+- kube control tool used to deploy and manage apps on cluster
+- used to get cluster, nodes info
+
+Assumptions:
+docker image is build and available on docker hub
+k8s cluster(single node/multi nodes) is set up 
+
+Pods:
+- k8s doesnot deploy the containers directly on nodes 
+- the containers are encapsulated under an k8s object called pods
+- pod is a single instance(container) of an app.
+- for up scaling deploy another pod with same container in it.
+- if capacity is not sufficient for upscaling, deploy a new pod in a new node 
+
+Multi-container pods:
+- 2 diff. kind conatiners in 1 pod
+- helper container - support task for main container
+==================================================================
+kubectl:
+
+create pods:
+kubectl run nginx --image=nginx 
+		    [pod name]     [image name]
+- it deploys pod first inside a node and 
+- install the instance of nginx docker image which pulls the container from docker hub repo
+
+list pods:
+kubectl get pods
+
+describe pods:
+kubectl describe pod <pod_name>
+
+kubectl get pods -o wide 
+some addl info such as node where pod is running
+==============================
+YAML in k8s
+
+apiVersion:str
+- This is the version of the kubernetes API we’re using to create the object
+
+kind:str
+- The kind refers to the type of object we are trying to create
+
+metadata:dict
+- The metadata is data about the object like its name(str), labels(dict)
+
+spec:
+container(list),name(dict) and image(dict)
+
+==============================
+kind          apiVersion
+==============================
+Pod	          v1
+Service       v1
+ReplicaSet    apps/v1
+Deployment    apps/v1
+==============================
+
+file name: pod-definition.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+	tier: frontend
+spec:
+  containers:
+    - name: nginx-container
+      image: nginx
+
+Create pods:
+kubectl create -f pod-definition.yaml
+==============================
+Replication controller:
+
+file name: rc-definition.yaml
+
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+	tier: frontend
+spec:
+  template:
+	metadata:
+	  name: nginx
+	  labels:
+		app: nginx
+		tier: frontend
+	spec:
+	  containers:
+		- name: nginx-container
+		  image: nginx
+  replicas: 2
+
+kubectl create -f rc-definition.yaml
+kubectl get replicationcontroller
+kubectl get pods
+==============================
+ReplicaSet:
+
+file name: replicaset-definition.yaml
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+	tier: frontend
+spec:
+  template:
+	metadata:
+	  name: nginx
+	  labels:
+		app: nginx
+		tier: frontend
+	spec:
+	  containers:
+		- name: nginx-container
+		  image: nginx
+  replicas: 2
+  selector:
+    matchLabels:
+		tier: frontend <selects pods (non-existing) and if any existing pods are there and u want to add them here>
+
+kubectl create -f replicaset-definition.yaml
+kubectl get replicasets
+kubectl get pods
+kubectl delete pod <pod name>
+kubectl delete replicaset <name of replicaset>
+kubectl edit -f replicaset-definition.yaml (updates existing config)
+Scale:(it doesnot update in yaml file)
+kubectl scale --replicas=7 -f replicaset-definition.yaml  OR
+kubectl scale --replicas=7 replicaset <name of replicaset>
+==============================
+Deployment:
+- provides us with capabilities to upgrade the underlying instances seamlessly using 
+	rolling updates, 
+	undo changes, and 
+	pause and resume changes to deployments..
+	
+file is same as replicaset except kind: Deployment
+
+kubectl create -f <file name>
+kubectl get deployments
+kubectl get replicaset
+kubectl get pods
+kubectl get all <deployments, replicaset, pods>
+kubectl describe deployment <deployment name>
+==============================
+Deployment strategy:
+1. Recreate: all older versions gets destroyed and created with new version at same time (app loss)
+2. Rolling Update(default): one at a time (+-+-+-)
+
+Rolling Update:
+if we want to upgrade image version, first update the yaml file and update deployment using
+kubectl create -f <file name> or use edit option directly to automate this
+kubectl edit deployment <deployment name> and save file to see changes
+kubectl set image deployment <deployment name> nginx=nginx:1.9.1
+here we already have replicaset 1, it creates a new replicaset 2, it creates a pod in replicaset 2, removes one from replicaset 1 and so on...(+-+-+-)
+==============================
+Rollback:
+kubectl rollout undo <deployment name>
+it destroys pods in replicaset 2 and brings back pods in replicaset 1
+==============================
+Check status of deployment
+kubectl rollout status <deployment name>
+
+check history of deployment
+kubectl rollout history <deployment name>
+==============================
+CHANGE-CAUSE:
+during deployment use this to record the changes, it shows what cmds are run against the deployment
+kubectl create -f <file name> --record
+==============================
+Networking:
+- k8s has internal private n/w with IP 10.244.x.x and all pods are attached to it
+- k8s node has IP 192.168.x.x
+- pod has diff IP 10.244.x.x
+==============================
+Services: its k8s object same as pods/replicasets/deployments
+- Kubernetes Services helps us connect applications together with other applications or users. 
+- For example, our application has groups of PODs running various sections, such as a 
+	group for serving front-end load to users,
+	another group running back-end processes, and a 
+	third group connecting to an external data source. 
+- It is Services that enable connectivity between these groups of PODs. 
+- Services enable the front-end application to be made available to users, 
+	it helps communication between back-end and front-end PODs, and 
+	helps in establishing connectivity to an external data source. 
+- Thus services enable loose coupling between microservices in our application
+==============================
+3 types of services
+1.NodePort
+2.ClusteIP
+3.LoadBalancer
+
+1.NodePort
+-  listen to a port on the Node and forward requests on that port to a port on the POD running the web application. 
+2.ClusteIP
+- creates a virtual IP inside the cluster to enable communication b/w different services such as a set of front-end servers to a set of backend servers
+3.LoadBalancer
+- provisions a load balancer for our service in supported cloud providers. 
+- A good example of that would be to distribute load across different web servers
+==============================
+NodePort:
+3 ports
+1. on pod(80) 		- TargetPort
+2. on service(80) 	- Port
+3. on node(30008) 	- NodePort (range= 30000 to 32767)
+
+ClusterIP:
+on service(10.x.x.x) - ClusterIP
+==============================
+NodePort
+service-definition.yaml:
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-service
+  labels:
+    env: dev
+spec:
+  type: NodePort
+  ports:
+    - targetPort: 80
+	  port: 80
+	  nodePort: 30008
+  selector: <to link this service to pod>
+    <labels of pod-definition.yaml>
+	app: myapp
+
+
+kubectl create -f service-definition.yaml
+kubectl get services or svc
+
+curl http://<nodeip>:nodeport
+==============================
+Fetch worker node IP:
+minikube service <service name> --url
+==============================
+ClusterIP
+
+service-definition.yaml:
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-service
+  labels:
+    env: dev
+spec:
+  type: ClusterIP
+  ports:
+    - targetPort: 80
+	  port: 80
+  selector: <to link this service to pod>
+    <labels of pod-definition.yaml>
+	app: myapp
+==============================
+LoadBalancer:
+service-definition.yaml:
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-service
+  labels:
+    env: dev
+spec:
+  type: LoadBalancer
+  ports:
+    - targetPort: 80
+	  port: 80
+	  nodePort: 30008
+  selector: <to link this service to pod>
+    <labels of pod-definition.yaml>
+	app: myapp
+==============================
+1. Deploy pods(assuming images are avaialble in docker hub)
+2. Create services (ClusterIP)
+	- redis
+	- db
+3. Create services (NodePort)
+	- voting-app
+	- result-app
+==============================
