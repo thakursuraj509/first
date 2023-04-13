@@ -1,0 +1,1425 @@
+Ansible, Chef, Puppet are configuration management tools which means that they are
+primarily designed to install and manage software on existing servers.
+
+Terraform, CloudFormation are the infrastructure orchestration tools which basically
+means they can provision the servers and infrastructure by themselves.
+
+
+refresh:(instead of refreshing existing resources, it will skip this step and shows what to add)
+terraform plan -refresh=false
+
+target:
+terraform plan -target=aws_instance.myec2
+
+zipmap:
+- this func constructs a map from a list of keys and corresponding list of values 
+
+count:
+- if resources are identical
+
+for_each:
+- if distinct values are needed in arguments use for_each
+
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+Terraform: Infrastructure as code(IaC)
+- https://www.terraform.io/intro/index.html
+- developers/operations teams automatically manage and provision the technology stack for an app thru s/w, rather than using a manual process to configure h/w devices and OS
+- it is a multiplatform tool used for IaC across many cloud providers(AWS,Azure,GCP)
+
+REFERENCE LINKS:
+https://registry.terraform.io/providers/hashicorp/aws/latest/docs
+
+main.tf:
+
+provider:
+- tells terraform which plugin to use and for which cloud platform we are going to create resources
+
+resource:
+- choose the aws resource u need and give a name to it
+
+TERRAFORM LIFE CYCLE:
+1. initialize the folder 
+2. plan and check what we create 
+3. apply to create the resources
+4. destroy to delete the resources
+
+TERRAFORM INIT:
+- before we go ahead and deploy the resources, we need to initialize the folder/project, it will pull in the plugin for the specified provider and it will create a .terraform folder where we can see the plugin  
+- This is normally the first thing you run and it tells terraform everything about the project.
+- So if you're using modules that will pull us down, if you're using multiple providers, it will also pull them down.
+
+	procedure:
+	- cd first-resource (where .tf file exist)
+	- terraform init
+
+TERRAFORM VALIDATE:
+- check if configuration/code is correct
+
+	procedure:
+	- cd first-resource (where .tf file exist)
+	- terraform validate
+	
+TERRAFORM PLAN:
+- plan out what we need to set up, 
+- state is a terraform way of confirming what has been set up and what hasn't and it is one of the most important files in terraform 
++ create -> green
+- delete -> red
+~ modify -> orange
+- known after apply - while creation, this is an optional value - once created aws will return these values once it is set up (ex. arn)
+
+	procedure:
+	- cd first-resource (where .tf file exist)
+	- terraform plan 
+	
+TERRAFORM APPLY:
+- it runs terraform plan for one time check to confirm that we are going to deploy this setup
+	
+	procedure:
+	- cd first-resource (where .tf file exist)
+	- terraform apply
+	or 
+	- terraform apply -auto-approve(no need to type yes)
+	
+TERRAFORM DESTROY:
+- check the plan and removes the resources(that are in statefile)
+	
+	procedure to remove all resources under specific folder:
+	- cd first-resource (where .tf file exist)
+	- terraform destroy 
+	procedure to remove specific resource under specific folder
+	- cd first-resource (where .tf file exist)
+	- terraform destroy -target <resource name(aws_instance.myec2)>
+-------------------------------------------------------------------
+State file:
+- heart of terraform
+- w/o this file, terraform doesnot work 
+- keeps track of all the changes we make 
+- terraform uses this file as reference when we perform creating/updating/deleting resource 
+- when we hit apply/destroy the state file updates
+- once resource is created (terraform apply), and now if u delete .tfstate file, and run terraform apply, it will create the resource again as it was unaware of these changes from tfstate file.
+-------------------------------------------------------------------
+VARIABLES::
+Pre Variables:
+- they are a way of setting a value that we can use multipe times 
+- ex. VPC CIDR range 
+let us imagine we got multiple terraform files and we are setting up multiple vpc, i could use the same value, but let's say you need to change it and you got hundreds of files, you can now easily use variable to edit it and that change will reflect in all the files 
+
+Input Variable:
+- if default attribute is not defined under variable, it is going to act as input varible
+- it gives a chance for us to manually set a variable when we run terraform plan 
+-------------------------------------------------------------------
+OUTPUTS/ATTRIBUTES:
+output:
+- we get details about the resources we created when we run terraform apply 
+- or execute this -> terraform output <output_logical_name>
+-------------------------------------------------------------------
+LISTS:
+@ Lists are used to store multiple items in a single variable.
+© List items are ordered, changeable, and allow duplicate values.
+© List items are indexed, the first item has index [Q], the second item has index [1] etc.
+
+SET:
+e SET is used to store multiple items in a single variable.
+e SET items are unordered and no duplicates allowed.
+
+Allowed -> {"apple","orange"}
+
+for_each:
+- for_each makes use of map/set as an index value of the created resource.
+
+TUPLES, OBJECTS:
+tuples:
+- supports multiple data types where as list support only one data types
+- we need to define set of data types inside a list
+- type = tuple([string, number, string])
+
+objects:
+- similar to json 
+- structure multiple data types
+- similar to map(support single data type, whereas objects support multiple data types)
+------------------------------------------------------------------- 
+Dynamic Blocks:
+- are a way we can create reusable portions of code and do so dynamically
+-------------------------------------------------------------------
+Modules:
+- is a folder with other terraform files
+- allow us to create blocks of reusable code 
+- if any changes occurs in modules we have to always first run terraform init so that terraform becomes aware of what modules are in use
+- if you want to access any attribute created inside a module, 1. create output in that, 2. to access that attribute that we created inside module we have to create output and to access that output we use module.modulename.outputname
+- we have 2 types:
+	1. local
+		we can use local machine to define modules
+	2. remote
+		Use Terraform Registry predefined modules
+		check the link, we can find the code for each service, copy and paste in ur code 
+		https://registry.terraform.io/
+-------------------------------------------------------------------
+Remote Backend:
+https://www.terraform.io/docs/language/settings/backends/s3.html
+- since we initialize a lot of files, we have many state files, these files are very important, we cannot lose them, so in order to make them available - we have a remote backend(backup to S3 to store state file - there is one central repo where we can handle version control changes)
+-------------------------------------------------------------------
+Dependencies:
+- same as depends on from cloudformation
+-------------------------------------------------------------------
+Data Sources:
+- https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/instance
+- it is a way terraform can query aws to return a result
+- they make an API request to get aws info 
+-------------------------------------------------------------------
+Built-In Functions:
+refer documentation
+https://www.terraform.io/docs/language/functions/index.html
+-------------------------------------------------------------------
+TERRAFORM VERSIONING:
+* = : exact version equality
+* != : version not equal
+* >, >=, <, <= : version comparison, where "greater than" is a large version no.
+* ~> : pessimistic constraint operator, constraining both the oldest and newest version allowed, ex. ~>0.9 is equivalent to >=0.9, <1.0 and ~>0.8.4 is equivalent to >=0.8.4 and <0.9
+https://www.terraform.io/docs/language/settings/index.html#specifying-a-required-terraform-version
+-------------------------------------------------------------------
+Count-Base Concept:
+- Count -> helps us to create multiple resources 
+-------------------------------------------------------------------
+Multiple Variable Files:
+- if we have multiple environments dev/test/prod/uat -> instead of creating terraform files for specific env, we better use variable files 
+- terraform init
+- terraform plan -var-file="prod.tfvars"
+-------------------------------------------------------------------
+Import:
+- https://www.terraform.io/docs/cli/import/index.html
+- if you have any setup on aws console, you can import and bring it to terraform state file 
+- write the same resource block in terraform file that we want to use in aws console and donot run terraform apply, instead go to aws console, create the same resource(mentioned in terraform code) and take the resource id(copy it) and use in terminal to import the functionality from aws console to terraform state file
+- terraform import <resource name> <resource id>
+- ex. terraform import aws_vpc.demo-vpc2 vpc-0yhgg....
+- once import is done, check the state file, we can see the imported resource here, so when destroy is performed it will also destroy as per state file
+-------------------------------------------------------------------
+
+-------------------------------------------------------------------
+#################CERT COURSE SPECIFIC##############################
+-------------------------------------------------------------------
+APIs
+- endpoint on a server that we can connect to and pass on some arguments for it to do something on a server and return some results  
+- client(me), server(kitchen), api end point(waiter)
+
+APIs + TERRAFORM
+- write .tf file
+- hit terraform apply(for 1 VPC) -> the tf client sends request to AWS API End point
+- the endpoint then sends the request to backend workers(once the workers finish the job, they send back the response)
+- created a VPC(200 success OK + send VPC ID + misc details)
+-------------------------------------------------------------------
+Available Providers:
+- if an API is available you can create your own provider 
+- providers uses plugin (code bundled together) to interact with an API
+https://www.terraform.io/docs/language/providers/index.html
+-------------------------------------------------------------------
+Multi Provider Setup:
+1. Vault:
+- is a hashicorp product, used for managing secrets
+- get secrets/sensitive data inside a terraform code
+
+provider "vault" {
+	token/vault end point 
+	}
+resource "vault_generic_secret" "mypassword"{
+	blabla
+}
+- terraform knows that this (vault_generic_secret) is vault resource, it will use vault plugin to interact with vault API
+
+2. Alias:
+- try to keep same AWS provider multiple times but mention the alias and make reference using aliasing
+
+3. Custom plugins:
+- there may be times where u even need a custom plugin, one that isn't available automatically when u run terraform init, we can store them in below paths
+- so there are 2 paths we can use on linux/mac and windows to store the plugins
+	- linux/others: ~/.terraform.d/plugins
+	- Windows: %APPDATA%\terraform.d\plugins
+-------------------------------------------------------------------
+Provisioners:
+- used to execute scripts on a local or remote machine as part of resource +/-
+- ex. on creation on EC2, go and install nginx on server
+
+Local vs Remote Exec:
+- there are 2 options available for a plugin just won't do the job(when an API is not available to set up any infrastructure), i.e
+	- Local-Exec: from ur local machine
+		- https://www.terraform.io/docs/provisioners/local-exec.html
+	- Remote-Exec: on the remote instance
+		- https://www.terraform.io/docs/provisioners/remote-exec.html
+
+- providers are static - we can say we need to create a vpc and it can go ahead, send an API request and create that VPC
+- but now we need to do sth that isn't declaratively configured or prone to error
+	ex, setting up an EC2 inst, if we were to install an Apache web server, -> we can use EC2 user data option, but if it fails we really donot know and terraform will report a success bcoz as far as its concerned, its gone ahead and executed the code
+- so with local-exec what u might have is ANSIBLE running on the underlying machine, so now what u can do when terraform has deployed ec2 instance, you can use local-exec to go ahead and execute an ansible playbook 
+- u have remote-exec, they actually execute on the underlying machine(u can use remote-exec on the instance you have configured to make the changes you would like)
+-------------------------------------------------------------------
+Provider Versioning:
+- set an explicit version to the provider 
+-------------------------------------------------------------------
+Variables:
+- run terraform init
+1. Environment Variables:
+- it provides a secure method of passing in secrets/ sensitive data without it being defined in the code 
+- Linux/MAC: export TF_VAR_vpcname="envvpc" [vpcname is the name of the resource, envvpc is the value of the resource) 
+			 echo $TF_VAR_vpcname
+			 >> envvpc
+- Windows: setx TF_VAR_vpcname envvpc
+		   echo %TF_VAR_vpcname%
+		   >> envvpc
+- now if you run terraform plan, you can see the name of variable directly, it will not ask us to enter
+
+2. CLI variables:
+- terraform plan -var="vpcname=cliname"
+
+3. Using TFVARS Files:
+- create a file(terraform.tfvars) and define multiple varible values
+- there is a hierarchy for loading the variables
+	- 1. it looks in the environment variables, if this was configured earlier, unset them
+		- MAC/Linux: unset TF_VAR_vpcname
+		- Windows: SET TF_VAR_vpcname=""
+	- 2. then looks for terraform.tfvars files 
+- if no env variable was set, by default it will pick up terraform.tfvars file, so run this
+	=> terraform plan 
+	
+4. Using AUTO TFVARS Files:
+- dev.auto.tfvars: this is the next thing terraform looks for if there no env variables and terraform.tfvars defined 
+
+5. Multi Value Files:
+- define some files like prod.tfvars, dev.tfvars and pass in the variable values
+- terraform plan -var-file="prod.tfvars"
+-------------------------------------------------------------------
+Variables - Order of loading:
+1. Env variables
+2. terraform.tfvars
+3. terraform.tfvars.json
+4. Any .auto.tfvars
+5. Any -var or -var-file options 
+-------------------------------------------------------------------
+TERRAFORM WORKFLOW:
+- workflow revolves around 3 types of users
+	- individual
+	- team
+	- terraform cloud 
+- TERRAFORM WORKFLOW made up of 3 steps 
+	- write
+	- plan
+	- create
+	
+TERRAFORM WORKFLOW::individual
+1. Write - create the terraform files
+2. Plan - Run the terraform plan and check
+3. Create - Create the infrastructure
+
+TERRAFORM WORKFLOW::team(version controlled and reviewed by superior)
+1. Write - checkout the latest code(terraform recommends using is source code management(bitbucket), we will be working with branches and as we are working as part of a team, we always want to check out and make sure we always have the latest code we are working with 
+2. Plan - Run the terraform plan and raise a pull request 
+3. Create - merge and Create the infrastructure
+
+TERRAFORM WORKFLOW::terraform cloud(CICD process/ code is frequently checked in case of terraform plan, and as one last measure there is still another approval stage b4 it goes ahead and gets created)
+- it is like a remote 'development' environment
+- so you still have code available locally on ur machine, but a lot of behind the scenes happens in terraform cloud, so you can do things like securely store variables u might be using or sensitive data as well as all state files, 
+- if u are using terraform cloud it is going to be where ur state files and variables are stored, and it is very similar, if not identical, to working with terraform as a team, whereas in teams we had locally and with terraform cloud we have remotely   
+1. Write - use terraform cloud as your 'development' environment
+2. Plan - when a pull request is raised, terraform plan is run
+3. Create - b4 merging, a second plan is run b4 approval to create  
+-------------------------------------------------------------------
+TERRAFORM COMMANDS:
+
+FMT: format
+- formats the terraform code, in VS code after writing the code and saving, by default it aligns the code automatically, try to give more spaces b/w words and hit save it aligns properly, if it does not work hit below commands
+
+	procedure:
+	- cd commands
+	- terraform fmt 
+
+TAINT:
+- this cmd will not modify infra, but does modify state file in order to mark a resource as tainted
+- once a resource is marked as tainted the next plan will show that resource will be -/+ and next apply will implement this change
+- it marks the resource for recreation
+- now this is a really important concept for terraform if u had a much larger set up and we are talking a very complex set up with the infrastructure and you are applying it and it takes about 30 min to go ahead and create, 
+- if at some point it fails, terraform does not automatically rollback, those resources are still up
+- But what it does do is the ones that it's provisioned and in this case,it only got halfway through the first half the resources it's created, it will take them. 
+- What tainting does is it marks for recreation, because terraform cannot guarantee those are set up correctly, so when u run terraform apply again it's going to recreate all those resources again  
+
+	procedure:
+	- cd commands
+	- terraform init
+	- copy code of vpc creation for 2 - 3 times with diff names 
+	- terraform apply (it creates 2 VPC now)
+	- terraform taint aws_vpc.demo-vpc [here resource-name = aws_vpc.demo-vpc, u can see the resource will be marked as tainted]
+	- now run for testing --> terraform plan(Plan: 1 to add, 0 to change, 1 to destroy) - you can see YELLOW ARROW[signifies a change/replacement), it says resource is tainted, so must be replaced as we have marked the resource as tainted, we can't have same resource to be recreated again.
+	
+UNTAINT:
+- terraform untaint aws_vpc.demo-vpc(resource instance blabla... has been successfully untainted
+- now run --> terraform plan(No changes. Infrastructure is up-to-date)
+
+SPLAT EXPRESSIONS:
+- allows to get a list of all the attributes.
+output "arn"
+{
+value = aws_iam_user.example[*].arn
+}
+
+Terraform Graph:
+- generate a visual representation of either a config or execution plan 
+- output is of DOT format which can be converted to image
+- terraform graph > graph.dot
+
+IMPORT:
+- see above in notes 
+
+WORKSPACE:
+- it effectively give us a way to split up a state file 
+- now, if u work with terraform cloud, workspaces are a completely separate thing 
+- in the context of using workspaces locally, it is a way of logically separating the state files
+- to see the workspaces, run below command 
+- terraform workspace list
+- it shows as --> * default
+
+Creating Workspaces:
+- terraform workspace new <workspace_name>
+	ex. terraform workspace new development
+- it creates new workspace and switches to that workspace and if we run "terraform plan" it uses a new state file(Plan: 2 to add, 0 to change, 0 to destroy) and instead of using older statefile.
+ 
+Show Workspaces:
+- to see what worspace we are in, we can run below cmd 
+	- terraform workspace show 
+	>> it show "development"
+	
+Swap Workspaces:
+- to swap into another workspace, first run 
+	- terraform workspace list (it shows all available workspaces)
+	>> default
+	>> * dev                    (* -> tells that we are in this workspace)
+- and now run below cmd to swap the workspace
+	- terraform workspace select default
+	>> Switched to workspace "default"
+
+Delete Workspaces:
+- to delete the workspace we created, run
+	- terraform workspace delete <workspace_name>
+		ex. terraform workspace delete development
+	>> Deleted workspace "development"
+
+State File commands	
+State List: for local state files 
+- so to see what is inside a state file(i.e what all resources we have) we can run
+	- terraform state list 
+	>> aws_vpc.myvpc
+	   aws_vpc.myvpc2
+
+State Pull: for remote state files (stored in s3 bucket)
+- terraform state pull (we can see the state file content stored in s3 bucket)
+	   
+State MV:
+- renaming resources inside your state files
+	- terraform state mv <old resource name> <new resource name>
+	ex. terraform state mv aws_vpc.demovpc aws_vpc.vpcdemo
+
+State RM:
+- remove resource from a state file 
+- in case of IMPORT option, when we use vpc_id from aws console and run import, the stae file will have the resource and if we manually go to console and delete it, this is not good, as we still have the resource in state file, so to delete the resource from state file run below cmd
+	- terraform rm <resource_name>
+	ex. terraform rm aws_vpc.importvpc
+
+Debugging:
+- https://www.terraform.io/docs/internals/debugging.html
+- Mac/Linux: export TF_LOG=TRACE (TRACE, DEBUG, INFO, WARN or ERROR) - most verbose logging(is TRACE) - it generates a file and if we find bugs, link the log file and include it in a bug report 
+-------------------------------------------------------------------
+Security:
+- we can store aws credentials(access key/secret key) in 3 ways
+	1. environment variable
+	2. AWS CLI
+	3. Vault provider
+
+TERRAFORM is Infrastructure as code 
+Sentinel:
+- another hashicorp product
+- Policy as Code 
+- this is sth security team or policy creators will use .
+- https://www.hashicorp.com/sentinel/
+
+Secret Injection:
+- https://www.vaultproject.io/
+- if u need to pass in some sensitive data/secrets - one of the ways we can do that is something called SECRET INJECTION 
+- Vault: is a tool that we can use to store and access our secrets 
+-------------------------------------------------------------------
+State Management:
+
+Local State:
+- run terraform init and terraform plan and terraform apply - it creates a state file locally holding the resource details 
+
+Drift:
+- we have something set up on aws console thru terraform apply (deploy 2 vpcs)and made changes either locally or via console(manually remove 1 vpc), but the state file(has 2 vpc resource) is unaware of that change - DRIFT, so now we have to run below cmd
+	- terraform refresh (queries what is set up in aws console and updates the state in state file)
+	>> it return 2 vpc ids
+	- so now run 
+		- terraform plan(now it will also refresh the state, it shows 1 resource to add as this was deleted manually in console)
+
+Remote Backend:
+- store the state file remotely(s3 bucket)
+- enable versioning and encryption after s3 bucket is set up
+- refer vscode for coding part 
+
+Revert to Local Backend:
+- you can remove content from backend.tf 
+- run terraform init(it shows == TERRAFORM has detected you're unconfiguring your previously set "s3" backend.)
+
+Backend Limitations:
+- you are allowed only 1 BACKEND when using terraform (S3 for AWS or Azure Storage for Azure - only 1 is allowed)
+- security 
+	- state files can store secrets, when we use vaults to store secrets and run "terraform apply", those secrets are safely written to state file but when u run "terraform state pull" we can see the secret which is a limitation 
+
+TERRAFORM FORCE UNLOCK:
+- When working with a team, it is a little bit different compared to working by yourself, bcoz at the moment I'm the only person who is writing to the states and making changes and I have not got to worry about anyone else
+- you can set up s3 bucket and what that does is it keeps tracks of who's writing to the state file
+- ex. if there are 2 engineers working on sth, u can't have a conflict bcoz 2 people are writing and making changes to the state at the same time, only one person is allowed to do so 
+- a good approach if working with team ==> STATE LOCKING (it prevents 2 people writing to the states at the same time)
+- for whatever reason sth happens and u need to write to state, the engineers make the changes, but something is gone wrong, run this cmd:==> terraform force-unlock <lock_id> (this is really dangerous stuff and only do this as a last option)
+
+TERRAFORM CLOUD
+- some problems like encryption/back ups - best solution is to use TERRAFORM CLOUD
+- it encrypts state file at rest 
+- and also when working with it, it encrypts it using TLS encryption
+
+NOTE: Backend does not use string interpolation
+
+State Push:
+- terraform state push(over writes and push state files up, in this case if we were working locally with any local stuff, override that and if we had a remote backend, let's say we fixed it locally and we added backend, you would have an overwrite and push that up to our remote backend)
+
+State - Types of Backend:
+1. Standard: state management, storage(S3, Azure storage) and locking
+2. Enhanced: standard + can run operations remotely (terraform cloud/terraform enterprise type of functionality, it can make requests and handle states remotely, so with terraform cloud the states are held with terraform cloud and it will do all the execution, planning, applying (versus) from doing it from our local machine )
+-------------------------------------------------------------------
+Recap:
+- Only ONE backend allowed 
+- secrets are stored in state
+- state locking when working with teams 
+- State is stored in memory when using a remote backend
+- Standard + Enhanced backends
+- No interpolation allowed in backend setup
+- TERRAFORM refresh will attempt to resync the state
+- TERRAFORM state push will override the state
+-------------------------------------------------------------------
+TERRAFORM CLOUD
+- we need a github account
+- set up repo - private/public 
+- create a new file(main.tf)
+- copy first-resource code here and commit it to branch 
+- https://app.terraform.io/signup/account - do the set up and sign in 
+- set up organization ( give organization name and email) - create organization
+- create a new workspace
+	- 1. connect to vcs provider(Github/bitbucket/gitlab)
+	- 2. Choose repo
+	- 3. Configure settings (give workspace name - as dev or prod or test) - click create workspace
+
+- now it loads up the terraform file in workspace 
+- now "Configure Variables" - AWS provider(set up aws_access_key_id and aws_secret_access_key) via environment variable(click on sensitive checkbox)
+- now click "Queue Plan"
+- it first runs terraform plan command 
+- then click "Confirm & Apply" to run the terraform apply command
+- after apply is run, it creates the state file on cloud 
+
+TERRAFORM Cloud - DESTROY:
+- go to settings/ click "Destruction and Deletion"
+- Destroy Infrastructure:
+	- check the ALLOW DESTROY PLANS
+	- Click on "Queue destroy plan"(enter workspace name to confirm)
+	- now it will run terraform plan and then it will run terraform destroy
+	- also u can delete workspace if needed 
+-------------------------------------------------------------------
+TERRAFORM OSS vs CLOUD:
+- see screenshot on phone
+-------------------------------------------------------------------
+TERRAFORM CLOUD vs Enterprise:
+- TERRAFORM enterprise is a hosted version of terraform cloud 
+-------------------------------------------------------------------
+terraform console -> console to run adhoc queries
+-------------------------------------------------------------------
+Outputing the plan to a file and applying that plan:
+terraform plan -out=path (path=any name)
+terraform apply path
+-------------------------------------------------------------------
+Dealing with Large infrastructure changes:
+
+terraform plan -refresh=false
+or
+terraform plan target aws_instance.myec2
+-------------------------------------------------------------------
+Null Resource:
+- The null_resource implements the standard resource lifecycle but takes no further action.
+- The triggers argument allows specifying an arbitrary set of values that, when changed, will cause the resource to be replaced.
+-------------------------------------------------------------------
+Overview of state modification
+There are multiple sub-commands that can be used with terraform state, these include:
+
+
+list 	List resources within terraform state file.
+mv 		Moves item with terraform state.
+pull 	Manually download and output the state from remote state.
+push 	Manually upload a local state file to remote state.
+rm 		Remove items from the Terraform state
+show 	Show the attributes of a single resource in the state.
+-------------------------------------------------------------------
+Basics of Terraform Remote State
+
+‘The terraform_remote_state data source retrieves the root module output values from some
+other Terraform configuration, using the latest state snapshot from the remote backend.
+-------------------------------------------------------------------
+
+Terraform Import
+
+Terraform is able to import existing infrastructure.
+
+This allows you take resources you've created by some other means and bring it under
+Terraform management.
+
+terraform import aws_instance.myec2 i-0987654332111
+
+
+
+
+===================================================================================================
+Part 1: Evolution of Cloud + Infrastructure as Code
+WHAT HAS CHANGED from non-cloud to cloud
+
+Infrastructure provisioned via APIs
+Servers created & destroyed in seconds
+Long-lived + mutable --> Short-lived + immutable
+
+Provisioning Cloud Resources
+1. GUI
+2. API/CLI
+3. IaC
+
+What is Infrastructure as Code (laC)?
+  Categories of laC tools1:
+  1. Ad hoc scripts
+  2. Configuration management tools(Ansible - install and configure some dependencies on os)
+  3. Server Templating tools(Packer-Packer is HashiCorp's open-source tool for creating machine images from source configuration. You can configure Packer images with an operating system and software for your specific use-case. Terraform configuration for a compute instance can use a Packer image to provision your instance without manual configuration.
+  4. Orchestration tools(Kubernetes)
+  5. Provisioning tools(TF provisiones the services)
+ Declarative vs. Imperative
+
+Part 2: Terraform Overview + Setup
+Terraform is a tool for building, changing, and versioning infrastructure safely and efficiently
+Enables application software best practices to infrastructure
+Compatible with many clouds and services
+
+Terraform Architecture
+
+TF State<-->			<-->AWS Provider <--> AWS
+			Terraform Core  
+			|			|
+TF Config-->			<-->Azure Provider <--> Azure
+
+Installation Demo
+Install Terraform -> choco install terraform
+Authenticate to AWS -> install aws cli and run aws configure, provide user access key ID/security key/region
+
+Part 3: Basic Terraform Usage
+TF init 
+- initialize the backend, stores the state (local/S3)
+- downloads the plugin for provider(aws) from TF registry
+
+terraform12 init -force-copy -backend-config=key=<s3_key/terraform.tfstate> -backend-config=bucket=<s3 bucket name> -no-color
+terraform12 get -update -no-color
+terraform12 state pull -no-color
+terraform12 validate -no-color
+
+State File:
+- Terraform’s representation of the world
+- JSON file containing information about every resource and data object
+- Contains Sensitive Info (e.g. database password)
+- Can be stored locally or remotely
+
+Backends
+- Local
+	Simple to get started (laptop)
+	Sensitive values in plain text in json file
+	Uncollaborative
+	Manual
+- Remote
+	S3/TF cloud
+	Sensitive data encrypted
+	Collaboration possible
+	Automation possible
+	Increased complexity
+	
+TF plan
+- TF Config(Desired state) compares with TF state(Actual state)
+- tells create(+), update(~), destroy(-), replace(-/+)
+
+terraform12 plan -var-file=dev.tfvars --out="${WORKSPACE}/latestPlan.json" -no-color
+aws s3 cp ${WORKSPACE}/latestPlan.json <S3_path/latestPlan.json>
+
+TF apply
+- it creates/updates/destroys the resource based on plan output
+
+aws configure set s3.signature_version s3v4
+aws s3 cp <S3_path/latestPlan.json> ${WORKSPACE}/latestPlan.json
+terraform12 init -force-copy -backend-config=key=<s3_key/terraform.tfstate> -backend-config=bucket=<s3 bucket name> -no-color
+terraform12 get -update -no-color
+terraform12 state pull -no-color
+terraform12 apply "${WORKSPACE}/latestPlan.json" -no-color
+
+
+TF destroy
+terraform12 destroy -target <resource_name> or 
+terraform12 destroy
+ 
+Remote Backend (TF cloud)
+- managed offering from Hasicorp
+
+terraform {
+	backend "remote" {
+		organization = "xyz"
+		workspaces {
+			name = "tf-course"
+		}	
+	}
+}
+
+Remote Backend (AWS)
+terraform {
+  backend "s3" {
+      key = "terraform/tfstate.tfstate"  # folder path where state file resides
+      bucket = "suraj-remote-backend-16092021"
+      region = "ap-south-1"
+	  encrypt = true
+	  dynamodb_table = "tf-state-locking"  # ddb used for state lock (multiple people work on same project at once, so if you want to prevent 2 people prevent from applying different changes at same time)
+  }
+}
+
+Bootstrapping - part 1 
+- No remote backend specified(defaults to local)
+- write s3 bukect and ddb provision code(hash key = LockID) 
+- tf init/plan/apply
+- terraform.tfstate exists in local state file
+Bootstrapping - part 2
+- now specify the remote s3 backend and keep the same code(s3 and ddb)
+- tf init -> it asks -> do you want to copy existing state to new backend ? yes
+- tf plan/apply
+- terraform.tfstate exists in remote state file
+
+Part 4: Variables and Outputs
+
+Variable Types
+
+* Input Variables
+	var.<name>
+Ex.
+variable "instance_type"{
+	description = ""
+	type = "string"
+	default = ""
+	}
+
+* Local Variables - temporary vars within scope of function,take a value that is repeated many times through out the config,
+	local.<name>
+Ex.
+locals{
+	service_name = "my service"
+	owner = "devops"
+}
+
+
+* Output Variables - return values of the function
+Ex.
+output "instance_ip_addr"{
+	value = aws_instance_instance.public_ip
+}
+
+Setting Input Variables
+(In order of precedence // lowest — highest)
+
+* Manual entry during plan/apply
+* Default value in declaration block
+* TF_VAR_<name> environment variables
+* terraform.tfvars file
++ *.auto.tfvars file
+* Command line -var or -var-file
+
+Types & Validation
+
+Primitive Types: 						
+	* string
+	* number
+	* bool 
+
+Complex Types:
+	* list(<TYPE>)
+	* set(<TYPE>)
+	* map(<TYPE>)
+	* object({<ATTR NAME> = <TYPES>., ... })
+	* tuple([<TYPE>, ...])
+
+Validation:
+- Type checking happens automatically
+- custom conditions can also be enforced
+
+Sensitive data:
+- mark variable as sensitive
+	sensitive = true
+	
+- Pass to TF apply with:
+	> TF_VAR_variable
+	> -var (retrieved from secret manager at run time)
+	> can also use external secret stote(ex. aws secret manager)
+	
+Part 5: Additional Language Features
+Expressions + Functions
+Use the docs! -> https://developer.hashicorp.com/terraform/language
+
+Expressions:
+	* Template strings
+	* Operators (!, -, *, /, %, >, ==, etc...)
+	* Conditionals ( cond ? true : false)
+	* For ([for o in var.list : 0.id])
+	* Splat (var.list[*].id )
+	* Dynamic Blocks
+	* Constraints (Type & Version)
+
+Functions:
+	* Numeric
+	* String
+	* Collection
+	* Encoding
+	* Filesystem
+	* Date & Time
+	* Hash & Crypto
+	* IP Network
+	* Type Conversion
+
+Meta-Arguments
+- depends_on
+	* Terraform automatically generates 
+	dependency graph based on references
+	* If two resources depend on each other
+	(but not each others data), depends_on
+	specifies that dependency to enforce
+	ordering
+	* For example, if software on the
+	instance needs access to S3, trying to
+	create the aws_instance would fail if
+	attempting to create it before the
+	aws_iam_role_policy	
+	* syntax:
+		depends_on = [
+			aws_iam_role_policy.example
+			]
+- count
+	* Allows for creation of multiple
+	resources/modules from a
+	single block
+
+	* Useful when the multiple
+	necessary resources are
+	nearly identical
+	
+	*ex: 
+		resource "aws_instance" "server" {
+			count = 3
+				
+			tags = {
+			   Name = "Server ${count.index}"
+			}
+		}
+
+- for_each
+
+	* Allows for creation of multiple
+	resources/modules from a
+	single block
+
+	* Allows more control to
+	customize each resource
+	than count
+	
+	* Ex:
+	locals {
+		subnet_ids = toset(["subnet-1", "subnet-2"])
+	}
+	resource "aws_instance" "server" {
+		for_each = local.subnet_ids
+		
+		ami = "xxx"
+		instance_type = "yyy"
+		subnet_id = each.key
+			
+		tags = {
+		   Name = "Server ${each.key}"
+		}
+	}
+
+- Lifecycle
+A set of meta arguments to control
+terraform behavior for specific
+resources
+
+	* create_before_destroy can help with
+	zero downtime deployments
+
+	* ignore_changes prevents Terraform
+	from trying to revert metadata being
+	set elsewhere
+
+	* prevent_destroy causes Terraform to
+	reject any plan which would destroy
+	this resource
+	
+	* Ex:
+	lifecycle {
+		create_before_destroy = true
+		prevent_destroy = true
+		ignore_changes = [
+			tags,
+			replication_task_settings
+		]
+	}
+
+Provisioners
+Perform action on local or remote machine
+
+*file
+*local-exec 
+*remote-exec
+*vendor
+	*chef
+	*puppet
+
+Part 6: Project Organization + Modules
+What is a Module?
+	# Modules are containers for multiple resources that are used
+	together. A module consists of a collection of .tf and/
+	or .tf.json files kept together in a directory.
+	# Modules are the main way to package and reuse resource
+	configurations with Terraform.
+
+Types of modules:
+	* Root Module: Default module containing all .tf files in main working directory
+	* Child Module: A separate external module referred to from a .tf file
+
+Module Sources:
+	© Local path 			© Generic Git, Mercurial repositories
+	© Terraform Registry 	© HTTP URLs
+	© GitHub 				© S3 buckets
+	© Bitbucket 			© GCS buckets
+
+What Makes a Good Module?
+	+ Raises the abstraction level from base
+	resource types
+	+ Groups resources in a logical fashion
+	+ Exposes input variables to allow necessary
+	customization + composition
+	+ Provides useful defaults
+	+ Returns outputs to make further
+	integrations possible
+	
+Part 7: Managing Multiple Environments
+
+Two Main Approaches
+1. Workspaces 
+	* Multiple named sections(state files) within a single backend 
+	
+	> terraform workspace new dev 
+	> terraform workspace list 	
+		default
+		* dev
+		tst
+		mdl
+		prd
+	> terraform workspace select prd
+	
+2.File Structure						
+	* Directory layout provides separation, different backend for envs
+	dev 
+		main.tf
+		terraform.tfvars
+	staging
+		main.tf
+		terraform.tfvars
+	prod
+		main.tf
+		terraform.tfvars
+
+Terragrunt
+* Tool by gruntwork.io that provides utilities to make certain
+Terraform use cases easier
+	* Keeping Terraform code DRY
+	* Executing commands across multiple TF configs
+	* Working with multiple cloud accounts
+	
+Part 8: Testing Terraform Code
+Static Checks(scanning the code)
+	Built in 												
+	* terraform fmt(indent,structure code base) 			
+	* terraform validate(does a check to see if my configuration is using reqd. input variables or if passing bool to string variable) 		
+	* terraform plan(desired vs actual config diff)			
+	* custom validation rules 
+	
+	External
+	* tflint
+	* checkov, tfsec, terrascan,terraform-compliance, snyk
+	* Terraform Sentinal (enterprise only)
+
+Manual Testing
+*terraform init
+*terraform plan
+*terraform apply
+*terraform destroy
+
+Automated Testing
+
+Automate the manual test steps...
+
+...with Bash!
+
+Automated Testing
+
+Automate the manual test steps...
+
+..-with Terratest!
+
+Part 9: Developer Workflows and Automation
+General Workflow
+	* Write/update code
+	* Run changes locally (for development environment)
+	* Create pull request
+	* Run Tests via Continuous Integration
+	* Deploy to staging via CD (on merge to main)
+	* Deploy to production via CD (on release)
+	
+Additional Tools
+* Terragrunt
+	+ Minimizes code repetition
+	+ Enables multi-account separation
+	  (improved isolation/security)
+
+* Cloud Nuke
+	+ Easy cleanup of cloud resources.
+	
+* Makefiles
+	+ Prevent human error
+============================================================================================================================
+============================================================================================================================
+Part 1: Evolution of Cloud + Infrastructure as Code
+WHAT HAS CHANGED from non-cloud to cloud
+
+Infrastructure provisioned via APIs
+Servers created & destroyed in seconds
+Long-lived + mutable --> Short-lived + immutable
+
+Provisioning Cloud Resources
+1. GUI
+2. API/CLI
+3. IaC
+
+What is Infrastructure as Code (laC)?
+  Categories of laC tools1:
+  1. Ad hoc scripts
+  2. Configuration management tools(Ansible - install and configure some dependencies on os)
+  3. Server Templating tools(Packer-Packer is HashiCorp's open-source tool for creating machine images from source configuration. You can configure Packer images with an operating system and software for your specific use-case. Terraform configuration for a compute instance can use a Packer image to provision your instance without manual configuration.
+  4. Orchestration tools(Kubernetes)
+  5. Provisioning tools(TF provisiones the services)
+ Declarative vs. Imperative
+
+Part 2: Terraform Overview + Setup
+Terraform is a tool for building, changing, and versioning infrastructure safely and efficiently
+Enables application software best practices to infrastructure
+Compatible with many clouds and services
+
+Terraform Architecture
+
+TF State<-->			<-->AWS Provider <--> AWS
+			Terraform Core  
+			|			|
+TF Config-->			<-->Azure Provider <--> Azure
+
+Installation Demo
+Install Terraform -> choco install terraform
+Authenticate to AWS -> install aws cli and run aws configure, provide user access key ID/security key/region
+
+Part 3: Basic Terraform Usage
+TF init 
+- initialize the backend, stores the state (local/S3)
+- downloads the plugin for provider(aws) from TF registry
+
+terraform12 init -force-copy -backend-config=key=<s3_key/terraform.tfstate> -backend-config=bucket=<s3 bucket name> -no-color
+terraform12 get -update -no-color
+terraform12 state pull -no-color
+terraform12 validate -no-color
+
+State File:
+- Terraform’s representation of the world
+- JSON file containing information about every resource and data object
+- Contains Sensitive Info (e.g. database password)
+- Can be stored locally or remotely
+
+Backends
+- Local
+	Simple to get started (laptop)
+	Sensitive values in plain text in json file
+	Uncollaborative
+	Manual
+- Remote
+	S3/TF cloud
+	Sensitive data encrypted
+	Collaboration possible
+	Automation possible
+	Increased complexity
+	
+TF plan
+- TF Config(Desired state) compares with TF state(Actual state)
+- tells create(+), update(~), destroy(-), replace(-/+)
+
+terraform12 plan -var-file=dev.tfvars --out="${WORKSPACE}/latestPlan.json" -no-color
+aws s3 cp ${WORKSPACE}/latestPlan.json <S3_path/latestPlan.json>
+
+TF apply
+- it creates/updates/destroys the resource based on plan output
+
+aws configure set s3.signature_version s3v4
+aws s3 cp <S3_path/latestPlan.json> ${WORKSPACE}/latestPlan.json
+terraform12 init -force-copy -backend-config=key=<s3_key/terraform.tfstate> -backend-config=bucket=<s3 bucket name> -no-color
+terraform12 get -update -no-color
+terraform12 state pull -no-color
+terraform12 apply "${WORKSPACE}/latestPlan.json" -no-color
+
+
+TF destroy
+terraform12 destroy -target <resource_name> or 
+terraform12 destroy
+ 
+Remote Backend (TF cloud)
+- managed offering from Hasicorp
+
+terraform {
+	backend "remote" {
+		organization = "xyz"
+		workspaces {
+			name = "tf-course"
+		}	
+	}
+}
+
+Remote Backend (AWS)
+terraform {
+  backend "s3" {
+      key = "terraform/tfstate.tfstate"  # folder path where state file resides
+      bucket = "suraj-remote-backend-16092021"
+      region = "ap-south-1"
+	  encrypt = true
+	  dynamodb_table = "tf-state-locking"  # ddb used for state lock (multiple people work on same project at once, so if you want to prevent 2 people prevent from applying different changes at same time)
+  }
+}
+
+Bootstrapping - part 1 
+- No remote backend specified(defaults to local)
+- write s3 bukect and ddb provision code(hash key = LockID) 
+- tf init/plan/apply
+- terraform.tfstate exists in local state file
+Bootstrapping - part 2
+- now specify the remote s3 backend and keep the same code(s3 and ddb)
+- tf init -> it asks -> do you want to copy existing state to new backend ? yes
+- tf plan/apply
+- terraform.tfstate exists in remote state file
+
+Part 4: Variables and Outputs
+
+Variable Types
+
+* Input Variables
+	var.<name>
+Ex.
+variable "instance_type"{
+	description = ""
+	type = "string"
+	default = ""
+	}
+
+* Local Variables - temporary vars within scope of function,take a value that is repeated many times through out the config,
+	local.<name>
+Ex.
+locals{
+	service_name = "my service"
+	owner = "devops"
+}
+
+
+* Output Variables - return values of the function
+Ex.
+output "instance_ip_addr"{
+	value = aws_instance_instance.public_ip
+}
+
+Setting Input Variables
+(In order of precedence // lowest — highest)
+
+* Manual entry during plan/apply
+* Default value in declaration block
+* TF_VAR_<name> environment variables
+* terraform.tfvars file
++ *.auto.tfvars file
+* Command line -var or -var-file
+
+Types & Validation
+
+Primitive Types: 						
+	* string
+	* number
+	* bool 
+
+Complex Types:
+	* list(<TYPE>)
+	* set(<TYPE>)
+	* map(<TYPE>)
+	* object({<ATTR NAME> = <TYPES>., ... })
+	* tuple([<TYPE>, ...])
+
+Validation:
+- Type checking happens automatically
+- custom conditions can also be enforced
+
+Sensitive data:
+- mark variable as sensitive
+	sensitive = true
+	
+- Pass to TF apply with:
+	> TF_VAR_variable
+	> -var (retrieved from secret manager at run time)
+	> can also use external secret stote(ex. aws secret manager)
+	
+Part 5: Additional Language Features
+Expressions + Functions
+Use the docs! -> https://developer.hashicorp.com/terraform/language
+
+Expressions:
+	* Template strings
+	* Operators (!, -, *, /, %, >, ==, etc...)
+	* Conditionals ( cond ? true : false)
+	* For ([for o in var.list : 0.id])
+	* Splat (var.list[*].id )
+	* Dynamic Blocks
+	* Constraints (Type & Version)
+
+Functions:
+	* Numeric
+	* String
+	* Collection
+	* Encoding
+	* Filesystem
+	* Date & Time
+	* Hash & Crypto
+	* IP Network
+	* Type Conversion
+
+Meta-Arguments
+- depends_on
+	* Terraform automatically generates 
+	dependency graph based on references
+	* If two resources depend on each other
+	(but not each others data), depends_on
+	specifies that dependency to enforce
+	ordering
+	* For example, if software on the
+	instance needs access to S3, trying to
+	create the aws_instance would fail if
+	attempting to create it before the
+	aws_iam_role_policy	
+	* syntax:
+		depends_on = [
+			aws_iam_role_policy.example
+			]
+- count
+	* Allows for creation of multiple
+	resources/modules from a
+	single block
+
+	* Useful when the multiple
+	necessary resources are
+	nearly identical
+	
+	*ex: 
+		resource "aws_instance" "server" {
+			count = 3
+				
+			tags = {
+			   Name = "Server ${count.index}"
+			}
+		}
+
+- for_each
+
+	* Allows for creation of multiple
+	resources/modules from a
+	single block
+
+	* Allows more control to
+	customize each resource
+	than count
+	
+	* Ex:
+	locals {
+		subnet_ids = toset(["subnet-1", "subnet-2"])
+	}
+	resource "aws_instance" "server" {
+		for_each = local.subnet_ids
+		
+		ami = "xxx"
+		instance_type = "yyy"
+		subnet_id = each.key
+			
+		tags = {
+		   Name = "Server ${each.key}"
+		}
+	}
+
+- Lifecycle
+A set of meta arguments to control
+terraform behavior for specific
+resources
+
+	* create_before_destroy can help with
+	zero downtime deployments
+
+	* ignore_changes prevents Terraform
+	from trying to revert metadata being
+	set elsewhere
+
+	* prevent_destroy causes Terraform to
+	reject any plan which would destroy
+	this resource
+	
+	* Ex:
+	lifecycle {
+		create_before_destroy = true
+		prevent_destroy = true
+		ignore_changes = [
+			tags,
+			replication_task_settings
+		]
+	}
+
+Provisioners
+Perform action on local or remote machine
+
+*file
+*local-exec 
+*remote-exec
+*vendor
+	*chef
+	*puppet
+
+Part 6: Project Organization + Modules
+What is a Module?
+	# Modules are containers for multiple resources that are used
+	together. A module consists of a collection of .tf and/
+	or .tf.json files kept together in a directory.
+	# Modules are the main way to package and reuse resource
+	configurations with Terraform.
+
+Types of modules:
+	* Root Module: Default module containing all .tf files in main working directory
+	* Child Module: A separate external module referred to from a .tf file
+
+Module Sources:
+	© Local path 			© Generic Git, Mercurial repositories
+	© Terraform Registry 	© HTTP URLs
+	© GitHub 				© S3 buckets
+	© Bitbucket 			© GCS buckets
+
+What Makes a Good Module?
+	+ Raises the abstraction level from base
+	resource types
+	+ Groups resources in a logical fashion
+	+ Exposes input variables to allow necessary
+	customization + composition
+	+ Provides useful defaults
+	+ Returns outputs to make further
+	integrations possible
+	
+Part 7: Managing Multiple Environments
+
+Two Main Approaches
+1. Workspaces 
+	* Multiple named sections(state files) within a single backend 
+	
+	> terraform workspace new dev 
+	> terraform workspace list 	
+		default
+		* dev
+		tst
+		mdl
+		prd
+	> terraform workspace select prd
+	
+2.File Structure						
+	* Directory layout provides separation, different backend for envs
+	dev 
+		main.tf
+		terraform.tfvars
+	staging
+		main.tf
+		terraform.tfvars
+	prod
+		main.tf
+		terraform.tfvars
+
+Terragrunt
+* Tool by gruntwork.io that provides utilities to make certain
+Terraform use cases easier
+	* Keeping Terraform code DRY
+	* Executing commands across multiple TF configs
+	* Working with multiple cloud accounts
+	
+Part 8: Testing Terraform Code
+Static Checks(scanning the code)
+	Built in 												
+	* terraform fmt(indent,structure code base) 			
+	* terraform validate(does a check to see if my configuration is using reqd. input variables or if passing bool to string variable) 		
+	* terraform plan(desired vs actual config diff)			
+	* custom validation rules 
+	
+	External
+	* tflint
+	* checkov, tfsec, terrascan,terraform-compliance, snyk
+	* Terraform Sentinal (enterprise only)
+
+Manual Testing
+*terraform init
+*terraform plan
+*terraform apply
+*terraform destroy
+
+Automated Testing
+
+Automate the manual test steps...
+
+...with Bash!
+
+Automated Testing
+
+Automate the manual test steps...
+
+..-with Terratest!
+
+Part 9: Developer Workflows and Automation
+General Workflow
+	* Write/update code
+	* Run changes locally (for development environment)
+	* Create pull request
+	* Run Tests via Continuous Integration
+	* Deploy to staging via CD (on merge to main)
+	* Deploy to production via CD (on release)
+	
+Additional Tools
+* Terragrunt
+	+ Minimizes code repetition
+	+ Enables multi-account separation
+	  (improved isolation/security)
+
+* Cloud Nuke
+	+ Easy cleanup of cloud resources.
+	
+* Makefiles
+	+ Prevent human error
