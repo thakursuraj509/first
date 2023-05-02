@@ -1,3 +1,6 @@
 amul
 normal - 28
 full cream - 35
+
+heritage
+normal - 30
