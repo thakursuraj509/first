@@ -3,4 +3,8 @@ normal - 28
 full cream - 35
 
 heritage
-normal - 30
+normal - 31
+
+knr
+normal - 31
+full cream - 40
