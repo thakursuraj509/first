@@ -67,6 +67,8 @@ docker run ubuntu sleep 500
 execute a command
 	-> executes a command on running container
 docker exec <container id> cat /etc/hosts
+or
+docker container exec -it <container id> bash/ping/any binaries that are available for container
 
 detach 
 docker run -d <image name> 
