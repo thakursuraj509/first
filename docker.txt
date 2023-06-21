@@ -21,7 +21,14 @@ nodejs		| mongodb 	|redis		|ansible      |
 package and containerize apps and ship them and run anytime as many times as you want 
 -------------------------------------------------------------------
 DOCKER COMMANDS
-start a container
+
+download image
+docker pull <image name>
+
+list images
+docker images
+
+run a container
 docker run <image>
 
 list running containers
@@ -30,20 +37,17 @@ docker ps
 list all containers
 docker ps -a 
 
+start container 
+docker start <container name/id>
+
 stop container
 docker stop <container name/id>
 
 remove container
 docker rm <container name/id>
 
-list images
-docker images
-
 remove images - first remove containers to remove image
 docker rmi <image name/id>
-
-download image
-docker pull <image name>
 
 append a command
 docker run ubuntu sleep 500
