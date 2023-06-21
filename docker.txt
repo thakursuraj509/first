@@ -28,8 +28,11 @@ docker pull <image name>
 list images
 docker images
 
-create and run a container
+create and run a container (it gives a random container name) 
 docker run <image>
+
+create and run a container (with custom container name) 
+docker run --name mynginx <image>
 
 list running containers
 docker ps
