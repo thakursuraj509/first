@@ -28,7 +28,7 @@ docker pull <image name>
 list images
 docker images
 
-run a container
+create and run a container
 docker run <image>
 
 list running containers
