@@ -53,10 +53,10 @@ list of all IDs associated with docker containers
 docker container ls -aq
 
 stop all containers at a time
-docker stop <container name/id> $(docker container ls -aq)
+docker stop $(docker container ls -aq)
 
 remove all containers at a time
-docker rm <container name/id> $(docker container ls -aq)
+docker rm $(docker container ls -aq)
 
 remove images - first remove containers to remove image
 docker rmi <image name/id>
