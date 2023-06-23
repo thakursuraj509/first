@@ -32,7 +32,7 @@ create and run a container (it gives a random container name)
 docker run <image>
 
 create and run a container (with custom container name) 
-docker run --name mynginx <image>
+docker run -d --name=mynginx <image>
 
 list running containers
 docker ps
