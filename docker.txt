@@ -298,5 +298,5 @@ Docker Networking:
 			- no port mapping required here
 			
 User defined n/w:
-docker create network --driver bridge --subnet x.x.x.x/16 <n/w name>
+docker network create --driver bridge --subnet x.x.x.x/16 <n/w name>
 docker network ls
