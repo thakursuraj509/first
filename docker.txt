@@ -156,6 +156,14 @@ ENTRYPOINT (cmd line parameters gets appended)
 			docker run ubuntu-sleeper -> 5
 			docker run ubuntu-sleeper 10 -> 10
 
+Update ENTRYPOINT during runtime from sleep to sleep2.0
+			ex.
+			FROM Ubuntu
+			ENTRYPOINT ["sleep"]
+			CMD ["5"]
+			==> docker run --entrypoint sleep2.0 ubuntu-sleeper 10
+				command at start up: sleep2.0 10
+			
 docker-compose
 - first install docker compose on system
 - if we need to set up a complex app running multiple services, we use docker-compose
