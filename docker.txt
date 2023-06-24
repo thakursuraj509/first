@@ -116,6 +116,8 @@ create a Dockerfile
 
 build it
 	docker build . -f Dockerfile -t surthaku498/my-custom-app
+	-t ==> image tagging
+	-f ==> file name
 
 login to docker account
 	docker login
