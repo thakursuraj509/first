@@ -131,7 +131,7 @@ kind          		 apiVersion
 ==============================
 Pod	     		 v1
 Service       		 v1
-Replication Controller 	 v1
+ReplicationController 	 v1
 ReplicaSet    		 apps/v1
 Deployment    		 apps/v1
 ==============================
