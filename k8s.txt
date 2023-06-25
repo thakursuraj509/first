@@ -120,7 +120,7 @@ container(list),name(dict) and image(dict)
 ==============================
 kind          apiVersion
 ==============================
-Pod	          v1
+Pod	      v1
 Service       v1
 ReplicaSet    apps/v1
 Deployment    apps/v1
