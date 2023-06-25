@@ -228,10 +228,12 @@ kubectl get replicasets
 kubectl get pods
 kubectl delete pod <pod name>
 kubectl delete replicaset <name of replicaset>
-kubectl edit -f replicaset-definition.yaml (updates existing config)
+
 Scale:(it doesnot update in yaml file)
 kubectl scale --replicas=7 -f replicaset-definition.yaml  OR
 kubectl scale --replicas=7 replicaset <name of replicaset>
+(to update scale value in the yaml file)
+ - edit the yaml file and run kubectl replace -f replicaset-definition.yaml
 ==============================
 Deployment:
 - provides us with capabilities to upgrade the underlying instances seamlessly using 
