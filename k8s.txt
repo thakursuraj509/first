@@ -102,6 +102,9 @@ kubectl describe pod <pod_name>
 
 kubectl get pods -o wide 
 some addl info such as node where pod is running
+
+delete pod:
+kubectl delete pod <pod_name>
 ==============================
 YAML in k8s
 
