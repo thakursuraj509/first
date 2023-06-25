@@ -244,7 +244,7 @@ Deployment:
 	
 file is same as replicaset except kind: Deployment
 
-kubectl create -f <file name>
+kubectl create -f <file name> or kubectl create deployment <deployment_name> --image=nginx --replicas=3
 kubectl get deployments
 kubectl get replicaset
 kubectl get pods
