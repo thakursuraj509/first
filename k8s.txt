@@ -105,6 +105,13 @@ some addl info such as node where pod is running
 
 delete pod:
 kubectl delete pod <pod_name>
+
+Use the kubectl edit command to update the image of the pod to redis.
+kubectl edit pod redis
+
+If you used a pod definition file then update the image from redis123 to redis in the definition file via Vi or Nano editor and then run kubectl apply command to update the image :-
+
+kubectl apply -f redis-definition.yaml 
 ==============================
 YAML in k8s
 
