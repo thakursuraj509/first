@@ -65,6 +65,12 @@ kubectl:
 - kube control tool used to deploy and manage apps on cluster
 - used to get cluster, nodes info
 
+Basic cmds:
+	kubectl run hello-minikube
+	kubectl cluster-info
+	kubectl get nodes
+
+
 Assumptions:
 docker image is build and available on docker hub
 k8s cluster(single node/multi nodes) is set up 
