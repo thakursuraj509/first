@@ -143,6 +143,21 @@ spec:
 Create pods:
 kubectl create -f pod-definition.yaml
 ==============================
+One more pod creation example:
+apiVersion: v1
+kind: Pod
+metadata:
+  name: postgres
+  labels:
+    tier: db-tier
+spec:
+  containers:
+    - name: postgres
+      image: postgres
+      env:
+        - name: POSTGRES_PASSWORD
+          value: mysecretpassword
+==============================
 Replication controller:
 
 file name: rc-definition.yaml
