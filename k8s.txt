@@ -257,20 +257,24 @@ Deployment strategy:
 
 Rolling Update:
 if we want to upgrade image version, first update the yaml file and update deployment using
-kubectl create -f <file name> or use edit option directly to automate this
-kubectl edit deployment <deployment name> and save file to see changes
-kubectl set image deployment <deployment name> nginx=nginx:1.9.1
+- kubectl apply -f <file name> or 
+use edit option directly to automate this
+- kubectl edit deployment <deployment name> and save file to see changes
+
+another way to update deployment:
+- kubectl set image deployment <deployment name> nginx=nginx:1.9.1
+
 here we already have replicaset 1, it creates a new replicaset 2, it creates a pod in replicaset 2, removes one from replicaset 1 and so on...(+-+-+-)
 ==============================
 Rollback:
-kubectl rollout undo <deployment name>
+kubectl rollout undo deployment <deployment name>
 it destroys pods in replicaset 2 and brings back pods in replicaset 1
 ==============================
 Check status of deployment
-kubectl rollout status <deployment name>
+kubectl rollout status deployment <deployment name>
 
 check history of deployment
-kubectl rollout history <deployment name>
+kubectl rollout history deployment <deployment name>
 ==============================
 CHANGE-CAUSE:
 during deployment use this to record the changes, it shows what cmds are run against the deployment
