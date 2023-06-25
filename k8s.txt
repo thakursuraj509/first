@@ -233,7 +233,10 @@ Scale:(it doesnot update in yaml file)
 kubectl scale --replicas=7 -f replicaset-definition.yaml  OR
 kubectl scale --replicas=7 replicaset <name of replicaset>
 (to update scale value in the yaml file)
- - edit the yaml file and run kubectl replace -f replicaset-definition.yaml
+ - edit the yaml file and run 
+	kubectl replace -f replicaset-definition.yaml
+ - or directly edit in real time(running config) using 
+	kubectl edit replicaset <name of replicaset>
 ==============================
 Deployment:
 - provides us with capabilities to upgrade the underlying instances seamlessly using 
