@@ -1,0 +1,499 @@
+Kubernetes:
+- container orchestration technology
+- The process of automatically deploying and managing 100s of containers 
+	and upscale/downscale containers based on load in a cluster environment is known as Container Orchestration.
+
+Advantage: [HA and Auto-scaling/load balancing feature]
+- highly available(multiple instances of app running on different nodes)
+- user traffic is load balanced across various containers
+- when load increases it deployes more instances of apps seamlessly at service level
+- when we run out of h/w resources scale up/down the underlying nodes
+
+Architecture:
+Nodes(Minions):
+- A node is a machine – physical or virtual – on which kubernetesis installed. 
+- A node is a worker machine and this is were containers will be launched by kubernetes.
+
+Cluster:
+- A cluster is a set of nodes grouped together. 
+- This way even if one node fails you have your application still accessible from the other nodes. 
+- Moreover having multiple nodes helps in sharing load as well.
+
+Master:
+- The master is another node with Kubernetes installed in it, and is configured as a Master. 
+- The master watches over the nodes in the cluster and is responsible for the actual orchestration of containers on the worker nodes.
+
+Kubernetes Components:
+- API server:
+The API server acts as the front-end for kubernetes. 
+The users, management devices, Command line interfaces all talk to the API server to interact with the kubernetes cluster.
+
+- etcd
+ETCD is a distributed reliable key-value store used by kubernetes to store all data used to manage the cluster.
+
+- scheduler
+The scheduler is responsible for distributing work or containers across multiple nodes. 
+It looks for newly created containers and assigns them to Nodes.
+
+- controller
+The controllers are the brain behind orchestration. 
+They are responsible for noticing and responding when nodes, containers or endpoints goes down. 
+The controllers makes decisions to bring up new containers in such cases.
+
+- container runtime
+The container runtime is the underlying software that is used to run containers. 
+In our case it happens to be Docker.
+
+- kubelet
+kubelet is the agent that runs on each node in the cluster. 
+The agent is responsible for making sure that the containers are running on the nodes as expected.
+
+Master Node vs Worker Node:
+
+Master:
+	kube-apiserver
+	etcd
+	contoller
+	scheduler
+
+
+Worker:
+	kubelet agent
+	container runtime(docker)
+		
+kubectl:
+- kube control tool used to deploy and manage apps on cluster
+- used to get cluster, nodes info
+
+Basic cmds:
+	kubectl run hello-minikube
+	kubectl cluster-info
+	kubectl get nodes
+
+
+Assumptions:
+docker image is build and available on docker hub
+k8s cluster(single node/multi nodes) is set up 
+
+Pods:
+- k8s doesnot deploy the containers directly on nodes 
+- the containers are encapsulated under an k8s object called pods
+- pod is a single instance(container) of an app.
+- for up scaling deploy another pod with same container in it.
+- if capacity is not sufficient for upscaling, deploy a new pod in a new node 
+
+Multi-container pods:
+- 2 diff. kind conatiners in 1 pod
+- helper container - support task for main container
+==================================================================
+kubectl:
+
+create pods:
+kubectl run nginx --image=nginx 
+		    [pod name]     [image name]
+- it deploys pod first inside a node and 
+- install the instance of nginx docker image which pulls the container from docker hub repo
+
+list pods:
+- kubectl get pods
+
+describe pods:
+- kubectl describe pod <pod_name>
+
+some addl info such as node where pod is running
+- kubectl get pods -o wide 
+
+delete pod:
+- kubectl delete pod <pod_name>
+
+If you used a pod definition file then update the image from redis123 to redis in the definition file via Vi or Nano editor and then run kubectl apply command to update the image :-
+- kubectl apply -f redis-definition.yaml 
+
+Run below command to generate the YAML structure and save to YAML file
+- kubectl run redis --image=redis --dry-run=client -o yaml > pod-definition.yaml
+==============================
+YAML in k8s
+
+apiVersion:str
+- This is the version of the kubernetes API we’re using to create the object
+
+kind:str
+- The kind refers to the type of object we are trying to create
+
+metadata:dict
+- The metadata is data about the object like its name(str), labels(dict)
+
+spec:
+container(list),name(dict) and image(dict)
+
+==============================
+kind          		 apiVersion
+==============================
+Pod	     		 			v1
+Service       		 		v1
+ReplicationController 	 	v1
+ReplicaSet    		 		apps/v1
+Deployment    		 		apps/v1
+==============================
+
+file name: pod-definition.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+    tier: frontend
+spec:
+  containers:
+    - name: nginx-container
+      image: nginx
+
+Create pods:
+kubectl create -f pod-definition.yaml
+==============================
+One more pod creation example:
+apiVersion: v1
+kind: Pod
+metadata:
+  name: postgres
+  labels:
+    tier: db-tier
+spec:
+  containers:
+    - name: postgres
+      image: postgres
+      env:
+        - name: POSTGRES_PASSWORD
+          value: mysecretpassword
+==============================
+Replication controller:
+
+file name: rc-definition.yaml
+
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+	tier: frontend
+spec:
+  template:
+	metadata:
+	  name: nginx
+	  labels:
+		app: nginx
+		tier: frontend
+	spec:
+	  containers:
+	  - name: nginx-container
+		image: nginx
+  replicas: 2
+
+kubectl create -f rc-definition.yaml
+kubectl get replicationcontroller
+kubectl get pods
+==============================
+ReplicaSet:
+
+file name: replicaset-definition.yaml
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+	tier: frontend
+spec:
+  template:
+    metadata:
+	  name: nginx
+	  labels:
+		app: nginx
+		tier: frontend
+	spec:
+	  containers:
+	  - name: nginx-container
+	    image: nginx
+  replicas: 2
+  selector:
+    matchLabels:
+	  tier: frontend <selects pods (non-existing) and if any existing pods are there and u want to add them here>
+
+kubectl create -f replicaset-definition.yaml
+kubectl get replicaset or kubectl get rs
+kubectl get pods
+kubectl delete pod <pod name>
+kubectl delete replicaset <name of replicaset> or kubectl delete rs replicaset-1 replicaset-2 
+
+Scale:
+- open existing file and update repliacs to 6 and run -> kubectl replace -f replicaset-definition.yaml
+- kubectl scale --replicas=7 -f replicaset-definition.yaml  OR
+- kubectl scale --replicas=7 replicaset <name of replicaset> 
+Note: scale cmd will not update replicas count in yaml file 
+
+Edit:
+kubectl edit replicaset <name of replicaset>
+Note: edit cmd will update replicas count in yaml file and once saved it provisions automatically
+==============================
+Deployment:
+- provides us with capabilities to upgrade the underlying instances seamlessly using 
+	rolling updates, 
+	undo changes, and 
+	pause and resume changes to deployments..
+	
+file is same as replicaset except kind: Deployment
+
+kubectl create -f <file name> or kubectl create deployment <deployment_name> --image=nginx --replicas=3
+or kubectl create deployment <deployment_name> --image=nginx --replicas=4 --dry-run=client -o yaml > nginx-deployment.yaml and then kubectl create -f <file name> 
+kubectl get deployments or deployment or deploy
+kubectl get replicaset
+kubectl get pods
+kubectl get all <deployments, replicaset, pods>
+kubectl describe deployment <deployment name>
+==============================
+Deployment strategy:
+1. Recreate: all older versions gets destroyed and created with new version at same time (app loss)
+2. Rolling Update(default): one at a time (+-+-+-)
+
+Rolling Update:
+if we want to upgrade image version, first update the yaml file and update deployment using
+- kubectl apply -f <file name> or 
+use edit option directly to automate this
+- kubectl edit deployment <deployment name> and save file to see changes
+
+another way to update deployment:
+- kubectl set image deployment <deployment name> nginx=nginx:1.9.1
+
+here we already have replicaset 1, it creates a new replicaset 2, it creates a pod in replicaset 2, removes one from replicaset 1 and so on...(+-+-+-)
+==============================
+Rollback:
+kubectl rollout undo deployment <deployment name>
+it destroys pods in replicaset 2 and brings back pods in replicaset 1
+==============================
+Check status of deployment
+kubectl rollout status deployment <deployment name>
+
+check history of deployment
+kubectl rollout history deployment <deployment name>
+==============================
+CHANGE-CAUSE:
+during deployment use this to record the changes, it shows what cmds are run against the deployment
+kubectl create -f <file name> --record
+==============================
+Networking:
+- k8s has internal private n/w with IP 10.244.x.x and all pods are attached to it
+- k8s node has IP 192.168.x.x
+- pod has diff IP 10.244.x.x
+==============================
+Services: its k8s object same as pods/replicasets/deployments
+- Kubernetes Services helps us connect applications together with other applications or users. 
+- For example, our application has groups of PODs running various sections, such as a 
+	group for serving front-end load to users,
+	another group running back-end processes, and a 
+	third group connecting to an external data source. 
+- It is Services that enable connectivity between these groups of PODs. 
+- Services enable the front-end application to be made available to users, 
+	it helps communication between back-end and front-end PODs, and 
+	helps in establishing connectivity to an external data source. 
+- Thus services enable loose coupling between microservices in our application
+==============================
+3 types of services
+1.NodePort
+2.ClusteIP
+3.LoadBalancer
+
+1.NodePort
+-  listen to a port on the Node and forward requests on that port to a port on the POD running the web application. 
+2.ClusteIP
+- creates a interface(virtual IP) inside the cluster to enable communication b/w different services such as a set of front-end servers to a set of backend servers
+3.LoadBalancer
+- provisions a load balancer for our service in supported cloud providers. 
+- A good example of that would be to distribute load across different web servers
+==============================
+NodePort:
+3 ports
+1. on pod(80) 		- TargetPort
+2. on service(80) 	- Port
+3. on node(30008) 	- NodePort (range= 30000 to 32767)
+
+ClusterIP:
+on service(10.x.x.x) - ClusterIP
+==============================
+NodePort
+service-definition.yaml:
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-service
+  labels:
+    env: dev
+spec:
+  type: NodePort
+  ports:
+    - targetPort: 80 (same as port)
+	  port: 80 (**required)
+	  nodePort: 30008 (if not given, it picks a free port from default range - 30000 to 32767)
+  selector: <to link this service to pod>
+    <pull labels of pod-definition.yaml>
+	app: myapp
+
+
+kubectl create -f service-definition.yaml
+kubectl get services or svc
+
+curl http://<nodeip>:nodeport
+==============================
+Fetch worker node IP:
+minikube service <service name> --url
+==============================
+ClusterIP
+
+service-definition.yaml:
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-service
+  labels:
+    env: dev
+spec:
+  type: ClusterIP
+  ports:
+    - targetPort: 80
+	  port: 80
+  selector: <to link this service to pod>
+    <labels of pod-definition.yaml>
+	app: myapp
+==============================
+LoadBalancer:
+service-definition.yaml:
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-service
+  labels:
+    env: dev
+spec:
+  type: LoadBalancer
+  ports:
+    - targetPort: 80
+	  port: 80
+	  nodePort: 30008
+  selector: <to link this service to pod>
+    <labels of pod-definition.yaml>
+	app: myapp
+==============================
+1. Deploy pods(assuming images are avaialble in docker hub)
+2. Create services (ClusterIP)
+	- redis
+	- db
+3. Create services (NodePort)
+	- voting-app
+	- result-app
+==============================
+Namespaces:
+Created by k8s 
+	default
+	kube-system
+	kube-public
+
+create your own namespace for dev/qa/prod
+
+namespace has its own policies -> what namespace can do what type of actions
+		  has its resource limits -> define quota on what namespace can use what amount of resource 
+		  
+DNS:
+for default ns:
+	refer by direct name: ex. mysql.connect("db-service")  # db-service is a service object
+	
+for refer to another namespace:
+	mysql.connect("db-service.dev.svc.cluster.local")	
+		# dev -> target ns
+		  svc -> sub domain for service
+		  cluster.local -> default domain name of k8s cluster
+		  db-service -> name of service in target ns
+
+list ns:
+kubectl get ns
+
+create a pod in ns:
+kubectl run redis --image=redis --namespace=finance
+
+list pods in namespace:
+	kubectl get pods --namespace=kube-system or
+	kubectl get pods -n=kube-system
+
+to create pod in another namespace:
+	kubectl create -f pod-def.yaml --namespace=dev (or)
+	kubectl create -f pod-def.yaml with below example file
+use below pod-def.yml 
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  namespace: dev
+  labels:
+    app: nginx
+    tier: frontend
+spec:
+  containers:
+    - name: nginx-container
+      image: nginx
+	  
+to create a new ns:
+kubectl create namespace <namespace_name> (or)
+
+create a namespace-dev.yml and run below cmd
+	---
+	apiVersion: v1
+	kind: Namespace
+	metadata:
+	  name: dev
+	  
+	kubectl create -f namespace-dev.yml
+
+Switch ns:
+lets assume we have 3 ns -> dev, prod and default 
+so we need to run 
+	default: kubectl get pods 
+	dev: kubectl get pods --namespace=dev
+	prod: kubectl get pods --namespace=prod
+	
+if we want to switch to dev ns permanently use below cmd:
+kubectl config set-context $(kubectl config current-context) --namespace=dev
+
+now run-> 
+	default: kubectl get pods --namespace=default
+	dev: kubectl get pods 
+	prod: kubectl get pods --namespace=prod
+	
+view pods in all ns:
+	kubectl get pods --all-namespaces or
+	kubectl get pods -A
+	
+Resource Quota:
+
+compute-quota.yaml 
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: compute-quota
+  namespace: dev
+spec:
+  hard:
+	pods: "10"
+	requests.cpu: "4"
+	requests.memory: 5Gi
+	limits.cpu: "10"
+	limits.memory: 10Gi
+
+run: kubectl create -f compute-quota.yaml 
+	
