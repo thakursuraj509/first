@@ -1,4 +1,4 @@
-Install GIT:
+Install GIT: 
 sudo yum install git -y
 git --version
 --------------------
