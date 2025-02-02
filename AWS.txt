@@ -97,7 +97,7 @@ ENI Attributes:
 	- 1 EIP/private IPv4
 	- 1 Public IPv4
 	- 1 or more security groups
-	- 1 MAC #
+	- 1 MAC # 
 -------------------------------------------------------
 EBS(Elastic Block Store)
 - n/w drive attached to instance
