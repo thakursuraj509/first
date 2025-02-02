@@ -1,4 +1,4 @@
-region - cluster of data centers 
+region - cluster of data centers
 az - each region has many az
 		min - 2
 		usually - 3
