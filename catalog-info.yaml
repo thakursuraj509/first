@@ -20,5 +20,5 @@ metadata:
   description: An example of a Backstage application.
 spec:
   type: website
-  owner: thakursuraj509
+  owner: user:thakursuraj509
   lifecycle: experimental
