@@ -249,6 +249,7 @@ metadata:
   name: thakursuraj509
 spec:
   memberOf: [auth]
+---
 apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
