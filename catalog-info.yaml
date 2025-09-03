@@ -12,3 +12,13 @@ metadata:
   name: thakursuraj509
 spec:
   memberOf: [backstage]
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: backstage
+  description: An example of a Backstage application.
+spec:
+  type: website
+  owner: thakursuraj509
+  lifecycle: experimental
