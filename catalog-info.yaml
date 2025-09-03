@@ -25,3 +25,237 @@ spec:
   type: service
   owner: john@example.com
   lifecycle: development
+---
+# https://backstage.io/docs/features/software-catalog/descriptor-format#kind-component
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: shopping-ui
+spec:
+  type: website
+  lifecycle: production
+  owner: user:john
+  system: purchasing
+
+---
+
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: inventory
+spec:
+  type: service
+  lifecycle: production
+  owner: user:susan
+  system: purchasing
+
+---
+
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: orders
+spec:
+  type: service
+  lifecycle: production
+  owner: user:mark
+  system: purchasing
+
+---
+
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: returns
+spec:
+  type: service
+  lifecycle: production
+  owner: user:john
+  system: purchasing
+
+---
+
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: sales-promotions
+spec:
+  type: service
+  lifecycle: production
+  owner: user:john
+  system: purchasing
+
+---
+
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: purchasing
+  description: System for managing user purchases
+spec:
+  owner: ecommerce
+  domain: shopping-app
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: File-management
+  description: Handles all file processing
+spec:
+  owner: content
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: identity-management
+  description: Handles all authentication and authorization
+spec:
+  owner: auth
+---
+apiVersion: backstage.io/v1beta1
+kind: Component
+metadata:
+  name: audio-service
+  description: Service for handling audio
+spec:
+  type: service
+  lifecycle: production
+  owner: guests
+---
+apiVersion: backstage.io/v1beta1
+kind: Component
+metadata:
+  name: auth-service
+  description: Handles authentication
+spec:
+  type: service
+  lifecycle: production
+  owner: auth
+  system: identity-management
+  dependsOn: 
+  - component:user-service
+---
+apiVersion: backstage.io/v1beta1
+kind: Component
+metadata:
+  name: content-review
+  description: Service for reviewing content
+spec:
+  type: service
+  lifecycle: production
+  owner: guests
+---
+apiVersion: backstage.io/v1beta1
+kind: Component
+metadata:
+  name: file-upload
+  description: Handles file upload
+spec:
+  type: service
+  lifecycle: production
+  owner: guests
+---
+apiVersion: backstage.io/v1beta1
+kind: Component
+metadata:
+  name: user-profile
+  description: Service for handling user profiles
+spec:
+  type: service
+  lifecycle: production
+  owner: user:john
+  system: identity-management
+---
+apiVersion: backstage.io/v1beta1
+kind: Component
+metadata:
+  name: user-service
+  description: Service for handling user info
+spec:
+  type: service
+  lifecycle: production
+  owner: guests
+  system: identity-management
+  dependsOn:
+  - resource:user-db
+---
+apiVersion: backstage.io/v1beta1
+kind: Component
+metadata:
+  name: video-service
+  description: Service for handling video
+spec:
+  type: service
+  lifecycle: production
+  owner: guests
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: content
+spec:
+  type: team
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: video
+spec:
+  type: team
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: audio
+spec:
+  type: team
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: auth
+spec:
+  type: team
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: john
+spec:
+  memberOf: [auth]
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: mark
+spec:
+  memberOf: [auth]
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: claire
+spec:
+  memberOf: [video]
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: susan
+spec:
+  memberOf: [audio]
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: user-db
+  description: Stores user details
+spec:
+  type: database
+  owner: auth
+  system: identity-management
