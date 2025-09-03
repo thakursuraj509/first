@@ -18,6 +18,8 @@ kind: Component
 metadata:
   name: backstage
   description: An example of a Backstage application.
+  annotations:
+    github.com/project-slug: thakursuraj509/first
 spec:
   type: website
   owner: user:thakursuraj509
