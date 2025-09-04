@@ -75,9 +75,9 @@ spec:
   lifecycle: experimental # production, deprecated [REQUIRED]
   owner: user:thakursuraj509 # Group/Users [REQUIRED]
   system: public-websites # System
-  apiProvidedBy: auth-service
-  definition:  # [REQUIRED]
-    $text: https://raw.githubusercontent.com/thakursuraj509/first/refs/heads/main/openapi/auth-api-spec.yaml
+  # apiProvidedBy: auth-service
+  definition:
+    $text: https://raw.githubusercontent.com/thakursuraj509/first/refs/heads/main/openapi/auth-api-spec.yaml   # [REQUIRED]
 ---
 apiVersion: backstage.io/v1alpha1
 kind: System
