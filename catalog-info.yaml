@@ -40,5 +40,10 @@ metadata:
   description: System for managing public websites
   tags:
     - java
+  links:
+    - url: https://github.com
+      title: Admin Dashboard
+      icon: dashboard
+      type: admin-dashboard
 spec:
   owner: user:thakursuraj509
