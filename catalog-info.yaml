@@ -101,6 +101,8 @@ kind: Domain
 metadata:
   name: backstage-domain
   description: Everything about backstage-domain
+  tags:
+    - java
 spec:
   # type: product-area # product-group, bundle
   owner: user:thakursuraj509 # Group/Users [REQUIRED]
