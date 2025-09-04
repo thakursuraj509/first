@@ -46,10 +46,22 @@ spec:
   providesApis: 
     - auth-api
   dependsOn: 
-    - resource:artists-db
+    - resource:backstage-db
   # subcomponentOf: test # Component
   # providesApis: [] # API
   # consumesApis: [] # API
+  # dependsOn: [] # Component/Resource (resource:default/artists-db)
+  # dependencyOf: [] Component/Resource (component:default/artist-web-lookup)
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: backstage-db
+  description: Stores backstage details
+spec:
+  type: database # s3-bucket, kubernetes-cluster [REQUIRED]
+  owner: user:thakursuraj509 # Group/Users [REQUIRED]
+  system: public-websites # System
   # dependsOn: [] # Component/Resource (resource:default/artists-db)
   # dependencyOf: [] Component/Resource (component:default/artist-web-lookup)
 ---
@@ -93,3 +105,14 @@ spec:
   # type: product-area # product-group, bundle
   owner: user:thakursuraj509 # Group/Users [REQUIRED]
   # subdomainOf: audio-domain # Domain
+---
+# apiVersion: backstage.io/v1alpha1
+# kind: Location
+# metadata:
+#   name: org-data
+# spec:
+#   type: url # file
+#   # target: # str
+#   targets:
+#     - http://github.com/myorg/myproject/org-data-dump/catalog-info-staff.yaml
+#     - http://github.com/myorg/myproject/org-data-dump/catalog-info-consultants.yaml
