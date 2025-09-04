@@ -58,9 +58,17 @@ kind: Resource
 metadata:
   name: backstage-db
   description: Stores backstage details
+  tags:
+    - java
+  links:
+    - url: https://github.com
+      title: Admin Dashboard
+      icon: dashboard
+      type: admin-dashboard
 spec:
   type: database # s3-bucket, kubernetes-cluster [REQUIRED]
   owner: user:thakursuraj509 # Group/Users [REQUIRED]
+  lifecycle: experimental # production, deprecated [REQUIRED]
   system: public-websites # System
   # dependsOn: [] # Component/Resource (resource:default/artists-db)
   # dependencyOf: [] Component/Resource (component:default/artist-web-lookup)
