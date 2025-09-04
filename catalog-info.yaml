@@ -44,16 +44,10 @@ spec:
   lifecycle: experimental # production, deprecated [REQUIRED]
   system: public-websites # System
   # subcomponentOf: test # Component
-  # providesApis: [] # array of APIs 
-  # consumesApis: [] # array of APIs
-  # dependsOn: [] # array of Component/Resource
-  # dependencyOf: [] # array of Component/Resource
-  # dependsOn:
-  #   - resource:default/artists-db
-  # dependencyOf:
-  #   - component:default/artist-web-lookup
-  # providesApis:
-  #   - artist-api
+  # providesApis: [] # API
+  # consumesApis: [] # API
+  # dependsOn: [] # Component/Resource (resource:default/artists-db)
+  # dependencyOf: [] Component/Resource (component:default/artist-web-lookup)
 ---
 apiVersion: backstage.io/v1alpha1
 kind: System
