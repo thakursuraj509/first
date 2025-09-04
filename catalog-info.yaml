@@ -20,7 +20,23 @@ metadata:
   description: An example of a Backstage application.
   annotations:
     github.com/project-slug: thakursuraj509/first
+  tags:
+    - java
+  links:
+    - url: https://github.com
+      title: Admin Dashboard
+      icon: dashboard
+      type: admin-dashboard
 spec:
-  type: website
+  type: website # service, package
   owner: user:thakursuraj509
-  lifecycle: experimental
+  lifecycle: experimental # development, production
+  system: public-websites
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: public-websites
+  description: System for managing public websites
+spec:
+  owner: user:thakursuraj509
