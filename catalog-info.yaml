@@ -2,16 +2,27 @@ apiVersion: backstage.io/v1alpha1
 kind: Group
 metadata:
   name: backstage
+  description: The backstage team
 spec:
-  type: team
-  children: []
+  type: team # business-unit, product-area, root [REQUIRED]
+  profile:
+    displayName: Backstage
+    email: backstage@example.com
+    picture: https://example.com/groups/bu-infrastructure.jpeg
+  # parent: ops # Group (immediate parent group)
+  children: [] # Group (immediate child groups) [REQUIRED]
+  # members: [thakursuraj509] # User (users that are direct members of this group)
 ---
 apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
   name: thakursuraj509
 spec:
-  memberOf: [backstage]
+  profile:
+    displayName: Suraj Singh Thakur
+    email: suraj@example.com
+    picture: https://example.com/staff/jenny-with-party-hat.jpeg
+  memberOf: [backstage] # Group [REQUIRED]
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -28,9 +39,9 @@ metadata:
       icon: dashboard
       type: admin-dashboard
 spec:
-  type: website # service, library
-  owner: user:thakursuraj509 # Group/Users
-  lifecycle: experimental # production, deprecated
+  type: website # service, library [REQUIRED]
+  owner: user:thakursuraj509 # Group/Users [REQUIRED]
+  lifecycle: experimental # production, deprecated [REQUIRED]
   system: public-websites # System
   # subcomponentOf: test # Component
   # providesApis: [] # array of APIs 
