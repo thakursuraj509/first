@@ -86,7 +86,7 @@ spec:
   # apiProvidedBy: auth-service
   # definition: ... # [REQUIRED]
   definition:
-    $text: https://raw.githubusercontent.com/thakursuraj509/first/main/openapi/auth-api-spec.yaml
+    $json: https://raw.githubusercontent.com/thakursuraj509/first/main/openapi/auth-api-spec.yaml
     # $text: https://petstore.swagger.io/v2/swagger.json
 ---
 apiVersion: backstage.io/v1alpha1
