@@ -84,8 +84,23 @@ spec:
   owner: user:thakursuraj509 # Group/Users [REQUIRED]
   system: public-websites # System
   # apiProvidedBy: auth-service
-  definition:
-    $text: https://raw.githubusercontent.com/thakursuraj509/first/refs/heads/main/openapi/auth-api-spec.yaml   # [REQUIRED]
+  # definition: ... # [REQUIRED]
+  definition: |
+    openapi: "3.0.0"
+    info:
+      version: 1.0.0
+      title: Artist API
+      license:
+        name: MIT
+    servers:
+      - url: http://artist.spotify.net/v1
+    paths:
+      /artists:
+        get:
+          summary: List all artists
+    ...
+  # definition:
+  #   $text: https://raw.githubusercontent.com/thakursuraj509/first/refs/heads/main/openapi/auth-api-spec.yaml   
 ---
 apiVersion: backstage.io/v1alpha1
 kind: System
