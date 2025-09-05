@@ -76,8 +76,8 @@ spec:
 apiVersion: backstage.io/v1alpha1
 kind: API
 metadata:
-  name: auth-api
-  description: Verify user authentication status
+  name: petstore
+  description: The Petstore API
 spec:
   type: openapi # asyncapi, graphql, grpc [REQUIRED]
   lifecycle: experimental # production, deprecated [REQUIRED]
@@ -85,22 +85,9 @@ spec:
   system: public-websites # System
   # apiProvidedBy: auth-service
   # definition: ... # [REQUIRED]
-  # definition: |
-  #   openapi: "3.0.0"
-  #   info:
-  #     version: 1.0.0
-  #     title: Artist API
-  #     license:
-  #       name: MIT
-  #   servers:
-  #     - url: http://artist.spotify.net/v1
-  #   paths:
-  #     /artists:
-  #       get:
-  #         summary: List all artists
-  #   ...
   definition:
-    $text: https://raw.githubusercontent.com/thakursuraj509/first/main/openapi/auth-api-spec.yaml   
+    # $text: https://raw.githubusercontent.com/thakursuraj509/first/main/openapi/auth-api-spec.yaml
+    $text: https://petstore.swagger.io/v2/swagger.json
 ---
 apiVersion: backstage.io/v1alpha1
 kind: System
