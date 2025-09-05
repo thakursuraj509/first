@@ -76,8 +76,8 @@ spec:
 apiVersion: backstage.io/v1alpha1
 kind: API
 metadata:
-  name: petstore
-  description: The Petstore API
+  name: auth-api
+  description: Verify user auth status
 spec:
   type: openapi # asyncapi, graphql, grpc [REQUIRED]
   lifecycle: experimental # production, deprecated [REQUIRED]
