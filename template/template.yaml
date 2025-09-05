@@ -1,1 +1,211 @@
-test
+apiVersion: backstage.io/v1beta2
+kind: Template
+metadata:
+  name: test-template
+  title: Test Action template
+  description: scaffolder test template demo
+  annotations:
+    backstage.io/time-saved: PT4H # e.g. PT8H to mean "8 hours saved" or PT15M to mean "15 minutes saved"
+  tags: 
+    - recommended # ['recommended', 'react']
+spec:
+  owner: user:thakursuraj509 # Group/Users
+  type:  website # service, library [REQUIRED]
+
+  # these are the steps which are rendered in the frontend with the form input
+  parameters: # [REQUIRED]
+    - title: Fill in some steps
+      required:
+        - username
+        - password
+        - name
+        - entity
+        - owner
+        - email
+        - age
+        - status
+        - gender
+        - interests
+        - condition
+        - acceptTerms
+      properties:
+        username:
+          title: Enter your User Name
+          type: string
+          description: Unique user name of the component
+          # use the built in Secret field extension
+          ui:field: Secret
+        password:
+          title: Enter your Password
+          type: string
+          description: Unique password of the component
+          ui:field: Secret
+        name:
+          title: Enter your Name
+          type: string
+          description: The name you will login as
+          ui:placeholder: "my-name"
+          ui:autofocus: true
+          ui:options:
+            rows: 5
+        entity:
+          title: Pick your Entity
+          type: string
+          description: Pick your Entity
+          ui:field: EntityPicker
+          ui:options:
+            allowArbitraryValues: false
+        owner:
+          title: Owner
+          type: string
+          description: Owner of the component
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: 
+                - Group
+                - User
+        email:
+          title: Email
+          type: string
+          description: Enter your email address
+          ui:widget: email
+          ui:placeholder: "my-name@example.com"
+        age:
+          title: Age
+          type: number
+          description: Enter your age
+          minimum: 0
+          maximum: 100
+        status:
+          title: Relationship Status
+          type: string
+          description: Select one of the available options
+          enum:
+            - Single
+            - Married
+            - Divorced
+        gender:
+          title: Gender
+          type: string
+          description: What is your gender
+          enum:
+            - Male
+            - Female
+          ui:widget: radio
+          ui:options:
+            inline: true
+        interests:
+          title: Select Interests
+          type: array
+          description: What are your interests
+          items:
+            type: string
+            enum:
+              - cooking
+              - sleeping
+              - dancing
+              - hiking
+          ui:widget: checkboxes
+          ui:options:
+            inline: true
+          uniqueItems: true
+        condition:
+          title: Do you smoke ?
+          type: boolean
+          description: Do you smoke ?
+          ui:widget: radio
+          ui:options:
+            inline: true
+        acceptTerms:
+          title: Accept Terms and Conditios
+          type: boolean
+          description: Please accept the Terms and Conditios
+
+    - title: Choose a location
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+            allowedOwners:
+              - thakursuraj509
+            # allowedRepos:
+            #   - first
+            # allowedOrganizations:
+            #   - org1
+    - title: Deployment
+      required:
+        - deploy
+      properties:
+        deploy:
+          title: Deploy Application ?
+          type: boolean
+          default: true
+      dependencies:
+        deploy:
+          allOf:
+            - if:
+                properties:
+                  deploy:
+                    const: true
+              then:
+                properties:
+                  platform:
+                    title: Platform
+                    type: string
+                    description: Select what compute platfomr to deploy to
+                    enum:
+                      - ec2
+                      - ecs
+                      - eks
+                      - lambda
+                required:
+                  - platform
+          
+  # here's the steps that are executed in series in the scaffolder backend
+  steps: # [REQUIRED]
+    - id: fetchBase
+      name: Fetch Base
+      action: fetch:template
+      input:
+        url: ./content
+        values:
+          name: ${{ parameters.name }}
+          # owner: ${{ parameters.owner }}
+
+    # - id: fetchDocs
+    #   name: Fetch Docs
+    #   action: fetch:plain
+    #   input:
+    #     targetPath: ./community
+    #     url: https://github.com/backstage/community/tree/main/backstage-community-sessions
+
+    - id: publish
+      name: Publish
+      action: publish:github
+      input:
+        description: This is ${{ parameters.name }}
+        repoUrl: ${{ parameters.repoUrl }}
+        defaultBranch: 'main'
+
+    - id: register
+      name: Register
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: '/catalog-info.yaml'
+
+  # some outputs which are saved along with the job for use in the frontend
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['publish'].output.remoteUrl }}
+      - title: Open in catalog
+        icon: catalog
+        entityRef: ${{ steps['register'].output.entityRef }}
