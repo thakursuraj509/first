@@ -177,7 +177,7 @@ spec:
         url: ./content
         values:
           name: ${{ parameters.name }}
-          # owner: ${{ parameters.owner }}
+          owner: ${{ parameters.owner }}
 
     # - id: fetchDocs
     #   name: Fetch Docs
@@ -193,6 +193,7 @@ spec:
         description: This is ${{ parameters.name }}
         repoUrl: ${{ parameters.repoUrl }}
         defaultBranch: 'main'
+        allowedHosts: ['github.com']
 
     - id: register
       name: Register
