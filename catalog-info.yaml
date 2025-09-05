@@ -85,22 +85,22 @@ spec:
   system: public-websites # System
   # apiProvidedBy: auth-service
   # definition: ... # [REQUIRED]
-  definition: |
-      openapi: "3.0.0"
-      info:
-        version: 1.0.0
-        title: Artist API
-        license:
-          name: MIT
-      servers:
-        - url: http://artist.spotify.net/v1
-      paths:
-        /artists:
-          get:
-            summary: List all artists
-      ...
-  # definition:
-  #   $json: https://raw.githubusercontent.com/thakursuraj509/first/main/openapi/auth-api-spec.yaml
+  # definition: |
+  #     openapi: "3.0.0"
+  #     info:
+  #       version: 1.0.0
+  #       title: Artist API
+  #       license:
+  #         name: MIT
+  #     servers:
+  #       - url: http://artist.spotify.net/v1
+  #     paths:
+  #       /artists:
+  #         get:
+  #           summary: List all artists
+  #     ...
+  definition:
+    $json: https://raw.githubusercontent.com/thakursuraj509/first/main/openapi/auth-api-spec.yaml
   #   $text: https://petstore.swagger.io/v2/swagger.json
 ---
 apiVersion: backstage.io/v1alpha1
