@@ -31,6 +31,7 @@ metadata:
   description: An example of a Backstage application.
   annotations:
     github.com/project-slug: thakursuraj509/first
+    backstage.io/techdocs-ref: dir:.  # for enabling techdocs; dir:. --> it says docs folder is present at root location same as this yaml file
   tags:
     - java
   links:
