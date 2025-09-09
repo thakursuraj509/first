@@ -194,12 +194,13 @@ spec:
         repoUrl: ${{ parameters.repoUrl }}
         defaultBranch: 'main'
         allowedHosts: ['github.com']
+        repoVisibility: public
 
     - id: register
       name: Register
       action: catalog:register
       input:
-        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
         catalogInfoPath: '/catalog-info.yaml'
 
   # some outputs which are saved along with the job for use in the frontend
