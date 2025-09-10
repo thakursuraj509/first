@@ -13,17 +13,17 @@ spec:
   children: [] # Group (immediate child groups) [REQUIRED]
   # members: [thakursuraj509] # User (users that are direct members of this group)
 ---
-apiVersion: backstage.io/v1alpha1
-kind: User
-metadata:
-  name: thakursuraj509
-spec:
-  profile:
-    displayName: Suraj Singh Thakur
-    email: suraj@example.com
-    picture: https://example.com/staff/jenny-with-party-hat.jpeg
-  memberOf: [backstage] # Group [REQUIRED]
----
+# apiVersion: backstage.io/v1alpha1
+# kind: User
+# metadata:
+#   name: thakursuraj509
+# spec:
+#   profile:
+#     displayName: Suraj Singh Thakur
+#     email: suraj@example.com
+#     picture: https://example.com/staff/jenny-with-party-hat.jpeg
+#   memberOf: [backstage] # Group [REQUIRED]
+# ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
