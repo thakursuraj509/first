@@ -104,6 +104,21 @@ spec:
     $text: https://raw.githubusercontent.com/thakursuraj509/first/main/openapi/auth-api-spec.yaml
 ---
 apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: swagger-api
+  description: Verify swagger api status
+spec:
+  type: openapi # asyncapi, graphql, grpc [REQUIRED]
+  lifecycle: experimental # production, deprecated [REQUIRED]
+  owner: Backstage # Group/Users [REQUIRED]
+  system: public-websites # System
+  # apiProvidedBy: auth-service
+  # definition: ... # [REQUIRED]
+  definition:
+    $json: https://gist.githubusercontent.com/lenage/08964335de9064540c8c335fb849c5da/raw/6d63e3546897356882ed7e30cd48891a24e2b354/feature.swagger.json
+---
+apiVersion: backstage.io/v1alpha1
 kind: System
 metadata:
   name: public-websites
