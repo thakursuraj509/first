@@ -41,7 +41,7 @@ metadata:
       type: admin-dashboard
 spec:
   type: website # service, library [REQUIRED]
-  owner: user:thakursuraj509 # Group/Users [REQUIRED]
+  owner: Backstage # Group/Users [REQUIRED]
   lifecycle: experimental # production, deprecated [REQUIRED]
   system: public-websites # System
   providesApis: 
@@ -68,7 +68,7 @@ metadata:
       type: admin-dashboard
 spec:
   type: database # s3-bucket, kubernetes-cluster [REQUIRED]
-  owner: user:thakursuraj509 # Group/Users [REQUIRED]
+  owner: Backstage # Group/Users [REQUIRED]
   lifecycle: experimental # production, deprecated [REQUIRED]
   system: public-websites # System
   # dependsOn: [] # Component/Resource (resource:default/artists-db)
@@ -82,7 +82,7 @@ metadata:
 spec:
   type: openapi # asyncapi, graphql, grpc [REQUIRED]
   lifecycle: experimental # production, deprecated [REQUIRED]
-  owner: user:thakursuraj509 # Group/Users [REQUIRED]
+  owner: Backstage # Group/Users [REQUIRED]
   system: public-websites # System
   # apiProvidedBy: auth-service
   # definition: ... # [REQUIRED]
@@ -117,7 +117,7 @@ metadata:
       type: admin-dashboard
 spec:
   # type: product # service, feature-set
-  owner: user:thakursuraj509 # Group/Users [REQUIRED]
+  owner: Backstage # Group/Users [REQUIRED]
   domain: backstage-domain  # Domain
 ---
 apiVersion: backstage.io/v1alpha1
@@ -129,7 +129,7 @@ metadata:
     - java
 spec:
   # type: product-area # product-group, bundle
-  owner: user:thakursuraj509 # Group/Users [REQUIRED]
+  owner: Backstage # Group/Users [REQUIRED]
   # subdomainOf: audio-domain # Domain
 ---
 # apiVersion: backstage.io/v1alpha1
